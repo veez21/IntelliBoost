@@ -1,0 +1,34 @@
+#!/system/bin/sh
+
+mount -o remount,rw /
+mount -o remount,rw rootfs
+mount -o remount,rw /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+
+# LOG
+LOG=/data/intelliboost/fstrim.log
+if [ -e $LOG ];
+then
+	rm -f $LOG
+fi
+
+# Fstrim binary (busybox applet)
+# Current time is in enoch format
+
+if [ -e /system/bin/fstrim ] || [ -e /system/xbin/fstrim ] || [ -e /sbin/fstrim ];
+then
+	echo "================================================" | tee -a $LOG
+	echo " Fstrim Start at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG
+	echo "================================================" | tee -a $LOG
+
+	fstrim -v /system | tee -a $LOG;
+	fstrim -v /data | tee -a $LOG;
+	fstrim -v /cache | tee -a $LOG;
+
+	echo "================================================" | tee -a $LOG
+	echo " Fstrim Done at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG
+	echo "================================================" | tee -a $LOG
+else
+	echo "* Fstrim can't run without Busybox, Please install busybox (playstore) !" | tee -a $LOG
+fi

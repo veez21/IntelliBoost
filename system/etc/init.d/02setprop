@@ -1,0 +1,72 @@
+#!/system/bin/sh
+# Build.prop Tweaks
+LOG=/data/intelliboost/setprop.log
+
+#reload log
+if [ -f \$LOG ]; then
+busybox rm \$LOG;
+fi;
+busybox mount -o remount,ro / 2>/dev/null
+busybox mount -o remount,ro / / 2>/dev/null
+busybox mount -o remount,ro rootfs 2>/dev/null
+busybox mount -o remount,ro /system 2>/dev/null
+busybox mount -o remount,ro /system /system 2>/dev/null
+echo "$( date +"%m-%d-%Y %H:%M:%S" )  Applying build.prop tweaks..." | tee -a $LOG;
+
+# Wireless Speed Tweaks
+setprop net.tcp.buffersize.default 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.wifi 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.umts 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.gprs 4096,87380,256960,4096,16384,256960
+setprop net.tcp.buffersize.edge 4096,87380,256960,4096,16384,256960
+
+# Fast Dormancy
+busybox echo "" | busybox tee -a \$LOG
+busybox echo "Activating fast dormancy..." | busybox tee -a \$LOG
+setprop ro.fast.dormancy 1
+setprop ro.ril.fast.dormancy.rule 1
+setprop persist.radio.data_no_toggle 1
+busybox echo "Fast dormancy is activated" | busybox tee -a \$LOG
+
+#Graphics Tweaks and improvments
+setprop debug.performance.tuning 1
+setprop video.accelerate.hw 1
+setprop persist.sys.use_dithering 1
+
+#Battery Tweaks
+setprop debug.sf.hw 1
+setprop ro.ril.power_collapse 0
+setprop ro.ril.disable.power.collapse 1
+setprop persist.sys.use_dithering 0
+setprop wifi.supplicant_scan_interval 250
+setprop power_supply.wakeup enable
+setprop power.saving.mode 1
+setprop ro.config.hw_power_saving 1
+setprop ro.config.hw_power_saving true
+setprop persist.radio.add_power_save 1
+pm.sleep_mode=1
+power.saving.mode=1
+ro.ril.disable.power.collapse=0
+ro.vold.umsdirtyratio=20
+profiler.force_disable_err_rpt=1
+profiler.force_disable_ulog=1
+dalvik.vm.checkjni=false
+dalvik.vm.execution-mode=int:jit
+ro.ril.power_collapse=1
+power_supply.wakeup=enable
+ro.mot.eri.losalert.delay=1000
+ro.config.hw_fast_dormancy=1
+ro.config.hw_power_saving=1
+
+# Telephony
+ro.telephony.call_ring.delay=0
+ring.delay=0
+# Disable Sending Usage Data
+ro.config.nocheckin=1
+#kernel tweaks (Disable error checking)
+setprop ro.kernel.android.checkjni 0
+
+# Delete myself :)
+rm -f /system/etc/init.d/02setprop
+
+echo "Still here :)))) IM UNSTOPABLE HAHAHAHAHAHAHA" | tee -a \$LOG
