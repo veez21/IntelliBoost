@@ -1,4 +1,5 @@
 #!/system/bin/sh
+# Not applicable for legacy devices due to no /dev/block/platform folder
 
 LOG=/data/intelliboost/mount.log
 
@@ -6,7 +7,6 @@ LOG=/data/intelliboost/mount.log
 if [ -f \$LOG ]; then
 busybox rm \$LOG;
 fi;
-
 
 sys=$(find /dev/block/platform -name system)
 dat=$(find /dev/block/platform -name data)
