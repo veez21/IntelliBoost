@@ -43,16 +43,35 @@ echo "$( date +"%m-%d-%Y %H:%M:%S" )  Attempting to force fast_charge..." | tee 
 echo "Results may vary. Some don't support" | tee -a $LOG;
 busybox echo "" | busybox tee -a \$LOG
 busybox echo "Activating fast charging mode..." | busybox tee -a \$LOG
-#Force fast-charge
+
+# Force fast-charge
+# Optimised for mid-ranged legacy devices (3200mah)
 if [ -e /sys/kernel/fast_charge/force_fast_charge ]; then
-       busybox echo "1" > /sys/kernel/fast_charge/force_fast_charge
+       busybox echo "2" > /sys/kernel/fast_charge/force_fast_charge
 fi
-if grep 1 /sys/kernel/fast_charge/force_fast_charge; then
+
+if [ -e /sys/kernel/fast_charge/ac_charge_level ]; then
+       busybox echo "2100" > /sys/kernel/fast_charge/ac_charge_level
+fi
+
+if [ -e /sys/kernel/fast_charge/usb_charge_level ]; then
+       busybox echo "1200" > /sys/kernel/fast_charge/usb_charge_level
+fi
+
+if [ -e /sys/kernel/fast_charge/wireless_charge_level ]; then
+       busybox echo "1200" > /sys/kernel/fast_charge/wireless_charge_level
+fi
+
+# Disable Failsafe (At your own risk)
+#if [ -e /sys/kernel/fast_charge/failsafe ]; then
+#       busybox echo "0" > /sys/kernel/fast_charge/failsafe
+#fi
+
+if grep 2 /sys/kernel/fast_charge/force_fast_charge; then
 busybox echo "Forced fast_charge enabled enabled! [Pass]" | busybox tee -a \$LOG
 else
 busybox echo "Forced fast_charge doesn't exist on your kernel! [Failed]" | busybox tee -a \$LOG
 fi
-
 
 
 ############################   MISC   ##################################
@@ -166,11 +185,22 @@ else
 	sysctl -w vm.dirty_ratio=10;
 fi;
 echo "Disabling GENTLE_FAIR_SLEEPERS" >> $LOG
+
 # Disable Gentle Fair Sleepers(Would Improve smoothness)
 echo "NO_GENTLE_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features;
 echo "NO_NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features;
 echo "NO_NORMALIZED_SLEEPER" > /sys/kernel/debug/sched_features;
 
+# Kernel_panic
+# No effect on battery, but inproves stability and no random reboots
+# Only needed if kernel is poorly built
+
+busybox sysctl -w vm.panic_on_oom=0
+busybox sysctl -w kernel.softlockup_panic=0
+busybox sysctl -w kernel.panic_on_oops=0
+busybox sysctl -w kernel.panic=0
+busybox echo "" | busybox tee -a \$LOG
+busybox echo "Kernel panic is disabled" | busybox tee -a \$LOG
 
 # Waifai sleeper
 sqlite=/system/xbin/sqlite3
@@ -184,6 +214,21 @@ else
 fi
 busybox echo "" | busybox tee -a \$LOG
 busybox echo "Wifi sleeper is activated.." | busybox tee -a \$LOG
+
+# Disable Debugging
+
+if [ -e /sys/module/lowmemorykiller/parameters/debug_level ]; then
+    busybox chmod 644 /sys/module/lowmemorykiller/parameters/debug_level
+    busybox echo "0" > /sys/module/lowmemorykiller/parameters/debug_level
+fi
+for parameter in /sys/module/*
+   do
+if [ -e $parameter/parameters/debug_mask ]; then
+    busybox chmod 644 $parameter/parameters/debug_mask
+    busybox echo "0" > $parameter/parameters/debug_mask
+fi
+done
+
 
 busybox mount -o remount,ro / 2>/dev/null
 busybox mount -o remount,ro / / 2>/dev/null
