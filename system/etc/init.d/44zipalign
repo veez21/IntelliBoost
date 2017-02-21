@@ -16,7 +16,6 @@ fi
 		echo "Second Boot, ZipAlign starts at 3rd boot" | tee -a $log
 		echo "Lemme make use of this cycle to clear the logs of dead scripts"
 		rm -f /data/intelliboost/setprop.log
-		rm -f /data/intelliboost/setprop.log
 		exit
 
 	elif [ $zap -eq 2 ]; then
