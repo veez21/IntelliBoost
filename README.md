@@ -2,7 +2,7 @@
 Stretch your android's battery life and oil the gears in your Android! 
 This mod is full of bash scripts that can be flashed in recovery.
 
-- [Official XDA Thread](http://google.com)
+- [XDA Thread](http://google.com)
 
 - [G+ Page](https://plus.google.com/u/0/communities/103694585129460218696)
 
@@ -32,6 +32,10 @@ Spot an error/bug? Please send me a pull request!
 Any contribution is welcome
 
 ### FAQ (Freaking Annoying Questions)
+Q: How to update?
+
+A: Just flash the new zip. The old scripts will be automatically cleared and replaced
+
 Q: Why cant you make a version with good performance and good battery?
 
 A: Performance is the enemy of Battery. Making them kiss and make up is impossible
@@ -44,7 +48,3 @@ Q: Can I use your scripts?
 
 A: Ask for permission (XDA PM). PLease state your purpose too (whatcha gonna do with the scripts) You have to ask for permission in addition to GNU Public License v3
 No response means no.
-
-Q: How to update?
-
-A: Just flash the new zip. The old scripts will be automatically cleared and replaced
