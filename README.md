@@ -1,5 +1,8 @@
 # IntelliBoost
-Stretch your android's battery life and oil the gears in your Android! This mod is full of scripts that can be flashed in recovery. [Official XDA Thread](http://google.com)
+Stretch your android's battery life and oil the gears in your Android! This mod is full of scripts that can be flashed in recovery. 
+
+[Official XDA Thread](http://google.com)
+
 [G+ Page](https://plus.google.com/u/0/communities/103694585129460218696)
 
 # Goal
