@@ -46,5 +46,4 @@ A: For the last time, YOU NEED BUSYBOX [Playstore (sterricson) || flashable zip 
 
 Q: Can I use your scripts?
 
-A: Ask for permission (XDA PM). PLease state your purpose too (whatcha gonna do with the scripts) You have to ask for permission in addition to GNU Public License v3
-No response means no.
+A: Ask for permission (XDA PM). PLease state your purpose too (whatcha gonna do with the scripts) You have to ask for permission. No response means no.
