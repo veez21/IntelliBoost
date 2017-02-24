@@ -8,7 +8,7 @@ This mod is full of bash scripts that can be flashed in recovery.
 
 # Goal
 - To ensure maximal battery life and a overall increase in smoothness and performnce (without degrading battery life)
-- Best for people who have horrrible battery life on legacy flagships (Note 3, Mi Max, etc...)
+- Best for people who have horrrible battery life on For mid-ranged/flagship devices (Nexus 6p, Note 3, Mi Max, s6 etc...)
 
 ## Methodology
 - Optimise android values using init.d scripts (Bash) and many others (build.prop tweaks...etc)
