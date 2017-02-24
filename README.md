@@ -40,10 +40,6 @@ Q: Why cant you make a version with good performance and good battery?
 
 A: Performance is the enemy of Battery. Making them kiss and make up is impossible
 
-Q: Help! My logs say that the script failed!
-
-A: For the last time, YOU NEED BUSYBOX [Playstore (sterricson) || flashable zip (YashdSaraf)] 
-
 Q: Can I use your scripts?
 
 A: Ask for permission (XDA PM). PLease state your purpose too (whatcha gonna do with the scripts) You have to ask for permission. No response means no.
