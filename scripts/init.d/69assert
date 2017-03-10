@@ -1,0 +1,39 @@
+#!/system/bin/sh
+# Assertive display script
+
+# No logging cuase of one time shot
+
+Qualcomm=`cat /system/build.prop|grep "msm"`
+
+if [ "$Qualcomm" ]; 
+then 
+	echo "Qualcomm device detected! Applying..."
+
+	mount -o remount,rw /system
+	echo "
+	" >> /system/build.prop
+	echo "# Assertive Display #" >> /system/build.prop
+	echo "# To save Battery by reducing backlight" >> /system/build.prop
+	echo "# Only for Qualcomm :)" >> /system/build.prop
+	echo "ro.qcom.ad=1
+ro.qcom.ad.calib.data=/system/etc/ad_calib.cfg" >> /system/build.prop
+ chmod 755 /system/ad_calib.cfg
+    echo "By @ala_mo" >> /system/build.prop
+	mount -o remount,ro /system
+
+else
+	rm -f ad_calib.cfg
+fi;
+# Delete myself :)
+rm -f /system/etc/69assert
+
+echo "" | tee -a \$LOG
+echo "" | tee -a \$LOG
+echo "I just killed myself" | tee -a \$LOG
+echo "This is the last time i will be executed (pun intended)" | tee -a \$LOG
+echo "Goodbye my friends, i have done my job" | tee -a \$LOG
+echo "But i have 1 last request" | tee -a \$LOG
+echo "." | tee -a \$LOG
+echo "." | tee -a \$LOG
+echo "." | tee -a \$LOG
+echo "Please delete my browser history :)" | tee -a \$LOG
