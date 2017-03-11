@@ -15,10 +15,9 @@ This mod is full of bash scripts that can be flashed in recovery.
 - Optimise android values using init.d scripts (Bash) and many others (build.prop tweaks...etc)
 
 ## Requirement
-- Busybox
 - Custom recovery
 - Custom kernel
-- A Brain
+- A working Brain
 
 ## Features
 List will be coming up soon!
@@ -29,7 +28,7 @@ Yet to arive
 - Dynamic update binary to detect ram or processor speed and decide on what profile to install(battery/ performance)
 
 ## Contribution
-Spot an error/bug? Please send me a pull request!
+Spot an error/bug? Please send me a fork then send me a pull request!
 Any contribution is welcome
 
 ### FAQ (Freaking Annoying Questions)
