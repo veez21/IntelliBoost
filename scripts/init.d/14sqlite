@@ -1,0 +1,127 @@
+#!/system/bin/sh
+# Sqlite yay
+# Defrags database files using SQULITE3 binary
+
+mount -o remount,rw -t auto /
+mount -t rootfs -o remount,rw rootfs
+mount -o remount,rw -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+
+LOG=/data/intelliboost/sqlite3.log
+
+# Loop to reset log values
+if [ -f \$LOG ]; then
+busybox rm \$LOG;
+touch \$LOG;
+else
+	touch \$LOG;
+fi;
+
+# sqlite3 on boot
+
+if [ -e /data/intelliboost/sqlitecnt ]; then
+	echo "SQlite Counter File Exists"
+	CNT=/data/intelliboost/sqlitecnt
+	SC=`cat $CNT`
+	if [ $SC -eq 0 ]; then
+		echo "1" > $CNT
+		echo "First Boot"
+		exit
+	elif [ $SC -eq 1 ]; then
+		echo "2" > $CNT
+		echo "Second Boot"
+		exit
+	elif [ $SC -eq 2 ]; then
+		echo "Third Boot"
+
+		   #time and date in enoch format
+	echo "Starting Sqlite3 Vacuum $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG;
+		echo "Now Optimizing"
+		# Loop
+		rm -f /data/intelliboost/sqlitecnt
+		touch /data/intelliboost/sqlitecnt
+		echo "0" > /data/intelliboost/sqlitecnt
+
+
+		for i in \
+		`busybox find /data -iname "*.db"`; 
+		do \
+			/system/xbin/sqlite3 $i 'VACUUM;'; 
+			/system/xbin/sqlite3 $i 'REINDEX;'; 
+		done;
+
+		if [ -d "/dbdata" ]; then
+			for i in \
+			`busybox find /dbdata -iname "*.db"`; 
+			do \
+				/system/xbin/sqlite3 $i 'VACUUM;'; 
+				/system/xbin/sqlite3 $i 'REINDEX;'; 
+			done;
+		fi;
+
+
+		if [ -d "/datadata" ]; then
+			for i in \
+			`busybox find /datadata -iname "*.db"`; 
+			do \
+				/system/xbin/sqlite3 $i 'VACUUM;'; 
+				/system/xbin/sqlite3 $i 'REINDEX;'; 
+			done;
+		fi;
+
+
+		for i in \
+		`busybox find /sdcard -iname "*.db"`; 
+		do \
+			/system/xbin/sqlite3 $i 'VACUUM;'; 
+			/system/xbin/sqlite3 $i 'REINDEX;'; 
+		done;
+	fi;
+else
+	touch /data/intelliboost/sqlitecnt
+	echo "0" > /data/intelliboost/sqlitecnt
+	echo "First Installation"
+	echo "Now Optimizing"
+		for i in \
+		`busybox find /data -iname "*.db"`; 
+		do \
+			/system/xbin/sqlite3 $i 'VACUUM;'; 
+			/system/xbin/sqlite3 $i 'REINDEX;'; 
+		done;
+
+		if [ -d "/dbdata" ]; then
+			for i in \
+			`busybox find /dbdata -iname "*.db"`; 
+			do \
+				/system/xbin/sqlite3 $i 'VACUUM;'; 
+				/system/xbin/sqlite3 $i 'REINDEX;'; 
+			done;
+		fi;
+
+
+		if [ -d "/datadata" ]; then
+			for i in \
+			`busybox find /datadata -iname "*.db"`; 
+			do \
+				/system/xbin/sqlite3 $i 'VACUUM;'; 
+				/system/xbin/sqlite3 $i 'REINDEX;'; 
+			done;
+		fi;
+
+
+		for i in \
+		`busybox find /sdcard -iname "*.db"`; 
+		do \
+			/system/xbin/sqlite3 $i 'VACUUM;'; 
+			/system/xbin/sqlite3 $i 'REINDEX;'; 
+				echo "Sqlite3 Vacuum finished at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG;
+
+		done;
+fi;
+
+mount -o remount,ro -t auto /
+mount -t rootfs -o remount,ro rootfs
+mount -o remount,ro -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache

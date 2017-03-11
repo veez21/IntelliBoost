@@ -1,0 +1,50 @@
+#!/system/bin/sh
+# Google play services wakelock fix
+# Kills aggressive wakelocks that drains a TON of battery
+
+mount -o remount,rw -t auto /
+mount -t rootfs -o remount,rw rootfs
+mount -o remount,rw -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+
+LOG=/data/intelliboost/google.log
+
+# Loop to reset log values
+if [ -f \$LOG ]; then
+busybox rm \$LOG;
+touch \$LOG;
+else
+	touch \$LOG;
+fi;
+
+echo "$( date +"%m-%d-%Y %H:%M:%S" )  Google Play Services wakelock drain fix..." | tee -a $LOG;
+busybox echo "" | busybox tee -a \$LOG
+busybox echo "Activating Google Play Services Drain fix..." | busybox tee -a \$LOG
+su -c pm enable com.google.android.gms/.update.SystemUpdateActivity
+su -c pm enable com.google.android.gms/.update.SystemUpdateService
+su -c pm enable com.google.android.gms/.update.SystemUpdateService\$ActiveReceiver
+su -c pm enable com.google.android.gms/.update.SystemUpdateService\$Receiver
+su -c pm enable com.google.android.gms/.update.SystemUpdateService\$SecretCodeReceiver
+su -c pm enable com.google.android.gsf/.update.SystemUpdateActivity
+su -c pm enable com.google.android.gsf/.update.SystemUpdatePanoActivity
+su -c pm enable com.google.android.gsf/.update.SystemUpdateService
+su -c pm enable com.google.android.gsf/.update.SystemUpdateService\$Receiver
+su -c pm enable com.google.android.gsf/.update.SystemUpdateService\$SecretCodeReceiver
+
+busybox sleep 20
+busybox echo "Killing Gapps battery draining processes..." | busybox tee -a \$LOG
+busybox killall -9 com.google.android.gms
+busybox killall -9 com.google.android.gms.persistent
+busybox killall -9 com.google.process.gapps
+busybox killall -9 com.google.android.gsf
+busybox killall -9 com.google.android.gsf.persistent
+busybox echo "They died lol :)" | busybox tee -a \$LOG
+
+busybox echo "Google Play Services Drain fix" | busybox tee -a \$LOG
+
+mount -o remount,ro -t auto /
+mount -t rootfs -o remount,ro rootfs
+mount -o remount,ro -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
