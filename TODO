@@ -5,3 +5,8 @@ Todo:
 => Add a few scripts to have UI in terminal shell
 => Add kernel tweaks
 => Add governer tweaks (merge govtuner sources, using UI)
+=> Forced fast charging
+=> Chmod775 specifically
+=> GPS Config selection in UI
+=> Finalise update-binary
+=> init.d enabler (unapck boot.img then repack)
