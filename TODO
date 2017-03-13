@@ -1,5 +1,6 @@
 Todo:
 => Add x86 support
+=> Create profiles in UI (Gaming, performance, etc) [Ensure that it's on-the-fly]
 => Execution of scripts on-the-fly using Crossbreeder
 => Add a few scripts to have UI in terminal shell
 => Add kernel tweaks
