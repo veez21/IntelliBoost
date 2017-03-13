@@ -26,7 +26,7 @@ echo "Readahead kb optimised for 32gb devices" | tee -a $LOG
 
 #Optimising Readahead KB 
 #setvar
-readahead_kb="1024"
+readahead_kb="512"
 
 if [ -e /sys/devices/virtual/bdi/0:18/readahead_kb ]; then
     echo $readahead_kb > /sys/devices/virtual/bdi/0:18/readahead_kb
@@ -79,11 +79,11 @@ if [ -e /sys/devices/virtual/bdi/7:7/readahead_kb ]; then
 fi
 
 if [ -e /sys/devices/virtual/bdi/default/readahead_kb ]; then
-    echo "512" > /sys/devices/virtual/bdi/default/readahead_kb
-    echo "SD card read ahead kb SET to 512 --SUCCESS11(default)!"| tee -a $LOG
+    echo "256" > /sys/devices/virtual/bdi/default/readahead_kb
+    echo "SD card read ahead kb SET to 256 --SUCCESS11(default)!"| tee -a $LOG
 fi
 
-    echo "SD card read ahead kb successfully set to $readahead_kb, and default 512" | tee -a $LOG
+    echo "SD card read ahead kb successfully set to $readahead_kb, and default 256" | tee -a $LOG
 
 echo "" | tee -a $LOG
 echo "$( date +"%m-%d-%Y %H:%M:%S" ) I/O tweaks applied!" | tee -a $LOG;
