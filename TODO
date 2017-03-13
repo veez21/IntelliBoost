@@ -1,0 +1,6 @@
+Todo:
+=> Add x86 support
+=> Execution of scripts on-the-fly using Crossbreeder
+=> Add a few scripts to have UI in terminal shell
+=> Add kernel tweaks
+=> Add governer tweaks (merge govtuner sources, using UI)
