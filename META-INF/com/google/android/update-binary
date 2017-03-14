@@ -274,8 +274,12 @@ ui_print "===> From the top :)"
 set_progress 0.0
 ui_print "===> Mounting partitions..."
 # find system block and mount
-mount -w $(find /dev/block/platform -name system) /system
-mount -w $(find /dev/block/platform -name data) /data
+ui_print " ";
+ui_print " - Mounting system partition"
+mount /system
+
+ui_print " - Mounting data partition"
+mount /data
 sleep 1
 
 # Temorary stuff
@@ -363,6 +367,7 @@ mv /temp/xbin/ /system/xbin/
 mv /temp/data/ /data/
 mv /temp/system/ /system/
 
+#Set perms for cron, merge their update bin here
 chmod -R 755 /system/etc/init.d/
 chmod -R 775 /system/xbin
 chmod 775 /system/hosts
