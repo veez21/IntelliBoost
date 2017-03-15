@@ -21,8 +21,6 @@ fi;
 # Fstrim binary (busybox applet)
 # Current time is in enoch format
 
-if [ -e /system/bin/fstrim ] || [ -e /system/xbin/fstrim ] || [ -e /sbin/fstrim ];
-then
 	echo "================================================" | tee -a $LOG
 	echo " Fstrim Start at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG
 	echo "================================================" | tee -a $LOG
@@ -34,9 +32,6 @@ then
 	echo "================================================" | tee -a $LOG
 	echo " Fstrim Done at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG
 	echo "================================================" | tee -a $LOG
-else
-	echo "* Fstrim can't run without Busybox, Please install busybox (playstore) !" | tee -a $LOG
-fi
 
 mount -o remount,ro -t auto /
 mount -t rootfs -o remount,ro rootfs
