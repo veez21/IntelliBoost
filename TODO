@@ -10,3 +10,4 @@ Todo:
 => GPS Config selection in UI
 => Finalise update-binary
 => init.d enabler (unapck boot.img then repack)
+=> Add a loop to disable logging after the 5th boot to insignificantly reduce boot speed and save storage
