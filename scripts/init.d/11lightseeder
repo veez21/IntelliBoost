@@ -18,11 +18,6 @@ else
 	touch \$LOG;
 fi;
 
-#reload log
-if [ -f \$LOG ]; then
-busybox rm \$LOG;
-fi;
-
 if [ pgrep qrngd > /dev/null ]; then
  busybox echo "qrngd already running! Seeder will not be started!" >> $LOG
   exit 1

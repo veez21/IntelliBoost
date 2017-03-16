@@ -111,7 +111,6 @@ busybox echo "Kernel panic is disabled" | busybox tee -a \$LOG
 #fi
 
 # A TON OF FEATURES WILL BE ADDED IN FUTURE RELEASES
-# However, the governor value tweaking (merge govtuner), is on another init.d script
 
 ############################   MISC   ##################################
 #Kill media server to save battery
