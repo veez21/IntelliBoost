@@ -1,13 +1,20 @@
 Todo:
+
+Primary:
+=> fix dynamic lmk
+=> fix sqlite script
+=> Finalise scripts and add no-log scripts
+=> Compile and add required binaries
+=> Fix init.d enabler(unapck boot.img then repack)
+=> fix update binary
+
+Secondary
 => Add x86 support
+=> Add UI
 => Create profiles in UI (Gaming, performance, etc) [Ensure that it's on-the-fly]
 => Execution of scripts on-the-fly using Crossbreeder
 => Add a few scripts to have UI in terminal shell
 => Add kernel tweaks
 => Add governer tweaks (merge govtuner sources, using UI)
-=> Forced fast charging
-=> Chmod775 specifically
 => GPS Config selection in UI
-=> Finalise update-binary
-=> init.d enabler (unapck boot.img then repack)
-=> Add a loop to disable logging after the 5th boot to insignificantly reduce boot speed and save storage
+=> [done]Add a loop to disable logging after the 5th boot to insignificantly reduce boot speed and save storage
