@@ -1,10 +1,15 @@
 #!/system/bin/sh
 # IntelliBoost Engine
 
+mount -o remount,rw -t auto /
+mount -t rootfs -o remount,rw rootfs
+mount -o remount,rw -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+
 LOG=/data/intelliboost/engine.log
 A=$(cat /sys/class/power_supply/battery/capacity);
 
-# TODO: FFC cat `largest value` that defines the voltage (dynamic force fast charge)
 # Loop to reset log values
 if [ -f \$LOG ]; then
 busybox rm \$LOG;
@@ -15,11 +20,6 @@ fi;
 
 echo "$( date +"%m-%d-%Y %H:%M:%S" )  Intelliboost engine warming up..." | tee -a $LOG;
 
-mount -o remount,rw -t auto /
-mount -t rootfs -o remount,rw rootfs
-mount -o remount,rw -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
 
 ver=3.1
 	 echo "# ========================================= #" >> $LOG
@@ -47,41 +47,35 @@ busybox echo "This feature is not avaible for you, because your device is not mu
 fi
 
 # Fast Charge
-# TODO: Dynamic fast charging by finding the largest value string inside of applicable values
+# Dynamic fast charging by finding the largest value string inside of applicable values
 
 #echo "$( date +"%m-%d-%Y %H:%M:%S" )  Attempting to force fast_charge..." | tee -a $LOG;
-#echo "Results may vary. Some don't support" | tee -a $LOG;
-#busybox echo "" | busybox tee -a \$LOG
-#busybox echo "Activating fast charging mode..." | busybox tee -a \$LOG
+#echo "Results may vary. Kernel must support ffc" | tee -a $LOG;
+busybox echo "" | busybox tee -a \$LOG
+busybox echo "Activating fast charging mode..." | busybox tee -a \$LOG
 
-# Force fast-charge
-# Optimised for mid-ranged legacy devices (3200mah)
-#if [ -e /sys/kernel/fast_charge/force_fast_charge ]; then
-#       busybox echo "2" > /sys/kernel/fast_charge/force_fast_charge
-#fi
+awk '$0>x{x=$0};END{$volt=x}' /sys/kernel/fast_charge/ac_levels;
+awk '$0>y{y=$0};END{$volt1=y}' /sys/kernel/fast_charge/usb_levels;
+awk '$0>z{z=$0};END{$volt2=z}' /sys/kernel/fast_charge/wireless_levels;
 
-#if [ -e /sys/kernel/fast_charge/ac_charge_level ]; then
- #      busybox echo "2100" > /sys/kernel/fast_charge/ac_charge_level
-#fi
+busybox echo 2 /sys/kernel/fast_charge/force_fast_charge;
+busybox echo $volt > /sys/kernel/fast_charge/ac_charge_level;
+busybox echo $volt1 > /sys/kernel/fast_charge/usb_charge_level;
+busybox echo $volt2 > /sys/kernel/fast_charge/wireless_charge_level;
 
-#if [ -e /sys/kernel/fast_charge/usb_charge_level ]; then
- #      busybox echo "1200" > /sys/kernel/fast_charge/usb_charge_level
-#fi
+# Initializing x allows the solution to properly handle integer lists with values <= 0
+# variable x has no possibility of being a negative integer(mv), thus, initialisation of x is not needed
 
-#if [ -e /sys/kernel/fast_charge/wireless_charge_level ]; then
- #      busybox echo "1200" > /sys/kernel/fast_charge/wireless_charge_level
-#fi
-
-# Disable Failsafe (At your own risk)
+# Disable Failsafe (At your own risk) => added to UI(grep value =2)
 #if [ -e /sys/kernel/fast_charge/failsafe ]; then
 #       busybox echo "0" > /sys/kernel/fast_charge/failsafe
 #fi
 
-#if grep 2 /sys/kernel/fast_charge/force_fast_charge; then
-#busybox echo "Forced fast_charge enabled enabled! [Pass]" | busybox tee -a \$LOG
-#else
-#busybox echo "Forced fast_charge doesn't exist on your kernel! [Failed]" | busybox tee -a \$LOG
-#fi
+if grep $volt /sys/kernel/fast_charge/ac_charge_level; then
+busybox echo "Forced fast_charge enabled enabled! [Pass]" | busybox tee -a \$LOG
+else
+busybox echo "Forced fast_charge is not supported on your kernel! [Failed]" | busybox tee -a \$LOG
+fi
 
 
 echo "Disabling GENTLE_FAIR_SLEEPERS" >> $LOG
