@@ -11,7 +11,7 @@ mount -o remount,rw /cache
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
-busybox rm \$LOG;
+busybox rm -f \$LOG;
 touch \$LOG;
 else
   touch \$LOG;

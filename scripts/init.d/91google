@@ -12,10 +12,10 @@ LOG=/data/intelliboost/logs/google.log
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
-busybox rm \$LOG;
+busybox rm -f \$LOG;
 touch \$LOG;
 else
-	touch \$LOG;
+  touch \$LOG;
 fi;
 
 echo "$( date +"%m-%d-%Y %H:%M:%S" )  Google Play Services wakelock drain fix..." | tee -a $LOG;

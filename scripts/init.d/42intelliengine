@@ -12,7 +12,7 @@ A=$(cat /sys/class/power_supply/battery/capacity);
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
-busybox rm \$LOG;
+busybox rm -f \$LOG;
 touch \$LOG;
 else
   touch \$LOG;

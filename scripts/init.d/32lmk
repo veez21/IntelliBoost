@@ -17,10 +17,10 @@ LOG=/data/intelliboost/logs/lmk.log
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
-busybox rm \$LOG;
+busybox rm -f \$LOG;
 touch \$LOG;
 else
-	touch \$LOG;
+  touch \$LOG;
 fi;
 
 busybox echo "Tweaking minfree, cost & debug values..." | busybox tee -a \$LOG

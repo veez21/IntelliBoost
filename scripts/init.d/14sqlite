@@ -12,10 +12,10 @@ LOG=/data/intelliboost/logs/sqlite3.log
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
-busybox rm \$LOG;
+busybox rm -f \$LOG;
 touch \$LOG;
 else
-	touch \$LOG;
+  touch \$LOG;
 fi;
 
 # sqlite3 on boot
