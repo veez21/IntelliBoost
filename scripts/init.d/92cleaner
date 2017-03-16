@@ -1,7 +1,7 @@
 #!/system/bin/sh
 # Cleaner script
 
-LOG=/data/intelliboost/cleaner.log
+LOG=/data/intelliboost/logs/cleaner.log
 
 mount -o remount,rw -t auto /
 mount -t rootfs -o remount,rw rootfs

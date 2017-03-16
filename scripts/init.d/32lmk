@@ -7,7 +7,13 @@
 
 # TODO: Dynamic lmk
 
-LOG=/data/intelliboost/lmk.log
+mount -o remount,rw -t auto /
+mount -t rootfs -o remount,rw rootfs
+mount -o remount,rw -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+
+LOG=/data/intelliboost/logs/lmk.log
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
@@ -16,12 +22,6 @@ touch \$LOG;
 else
 	touch \$LOG;
 fi;
-
-mount -o remount,rw -t auto /
-mount -t rootfs -o remount,rw rootfs
-mount -o remount,rw -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
 
 busybox echo "Tweaking minfree, cost & debug values..." | busybox tee -a \$LOG
 # Cost

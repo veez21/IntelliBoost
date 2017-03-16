@@ -11,7 +11,7 @@ mount -o remount,rw /cache
 if [ -e /data/intelliboost/zipaligncnt ]; then
 	count=/data/intelliboost/zipaligncnt
 	zap=`cat $count`
-	LOG=/data/intelliboost/zipalign.log;
+	LOG=/data/intelliboost/logs/zipalign.log;
 	zipaligndb=/data/zipalign.db;
 fi 
 

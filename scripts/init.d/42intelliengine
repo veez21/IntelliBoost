@@ -7,7 +7,7 @@ mount -o remount,rw -t auto /system
 mount -o remount,rw /data
 mount -o remount,rw /cache
 
-LOG=/data/intelliboost/engine.log
+LOG=/data/intelliboost/logs/engine.log
 A=$(cat /sys/class/power_supply/battery/capacity);
 
 # Loop to reset log values

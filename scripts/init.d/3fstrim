@@ -8,7 +8,7 @@ mount -o remount,rw /data
 mount -o remount,rw /cache
 
 # LOG
-LOG=/data/intelliboost/fstrim.log
+LOG=/data/intelliboost/logs/fstrim.log
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
