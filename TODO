@@ -1,0 +1,20 @@
+Todo:
+
+Primary:
+=> fix dynamic lmk
+=> fix sqlite script
+=> Finalise scripts and add no-log scripts
+=> Compile and add required binaries
+=> Fix init.d enabler(unapck boot.img then repack)
+=> fix update binary
+
+Secondary
+=> Fix kernel tweaks on cluster based SOCs (ARM/MediaTech big.LITTLE)
+=> Add x86 support
+=> Add UI
+=> Create profiles in UI (Gaming, performance, etc) [Ensure that it's on-the-fly]
+=> Execution of scripts on-the-fly using Crossbreeder
+=> Add a few scripts to have UI in terminal shell
+=> Add kernel tweaks
+=> Add governer tweaks (merge govtuner sources, using UI)
+=> GPS Config selection in UI

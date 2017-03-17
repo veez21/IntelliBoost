@@ -1,0 +1,248 @@
+#!/system/bin/sh
+# IntelliBoost Engine
+
+mount -o remount,rw -t auto /
+mount -t rootfs -o remount,rw rootfs
+mount -o remount,rw -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+
+LOG=/data/intelliboost/logs/engine.log
+A=$(cat /sys/class/power_supply/battery/capacity);
+
+# Loop to reset log values
+if [ -f \$LOG ]; then
+busybox rm -f \$LOG;
+touch \$LOG;
+else
+  touch \$LOG;
+fi;
+
+echo "$( date +"%m-%d-%Y %H:%M:%S" )  Intelliboost engine warming up..." | tee -a $LOG;
+
+
+ver=3.1
+	 echo "# ========================================= #" >> $LOG
+	 echo "IntelliBoost Version : $ver" >> $LOG
+     echo "Script Starting At `date`" >> $LOG
+	 echo "Android Version: `getprop ro.build.id`" >> $LOG
+	 echo "ROM: `getprop ro.build.display.id`" >> $LOG
+     echo "Build: `getprop ro.build.version.release`" >> $LOG
+     echo "Battery capacity: $A" >> $LOG
+     echo "Kernel: `uname -r`" >> $LOG
+	 echo "" >> $LOG
+     exec >> $LOG 2>&1
+     set -x
+############################   Kernel   ##################################
+
+# MPS
+busybox echo "" | busybox tee -a \$LOG
+busybox echo "Enable CPU multicore power save..." | busybox tee -a \$LOG
+if [ -f "/sys/devices/system/cpu/sched_mc_power_savings" ]; then
+busybox echo "2" > /sys/devices/system/cpu/sched_mc_power_savings;
+fi;
+if busybox grep 2 /sys/devices/system/cpu/sched_mc_power_savings; then
+busybox echo "Successfully Applied" | busybox tee -a \$LOG; else
+busybox echo "This feature is not avaible for you, because your device is not multi core or your CPU/kernel doesn't support it" | busybox tee -a \$LOG
+fi
+
+# Fast Charge
+# Dynamic fast charging by finding the largest value string inside of applicable values
+
+#echo "$( date +"%m-%d-%Y %H:%M:%S" )  Attempting to force fast_charge..." | tee -a $LOG;
+#echo "Results may vary. Kernel must support ffc" | tee -a $LOG;
+busybox echo "" | busybox tee -a \$LOG
+busybox echo "Activating fast charging mode..." | busybox tee -a \$LOG
+
+awk '$0>x{x=$0};END{$volt=x}' /sys/kernel/fast_charge/ac_levels;
+awk '$0>y{y=$0};END{$volt1=y}' /sys/kernel/fast_charge/usb_levels;
+awk '$0>z{z=$0};END{$volt2=z}' /sys/kernel/fast_charge/wireless_levels;
+
+busybox echo 2 /sys/kernel/fast_charge/force_fast_charge;
+busybox echo $volt > /sys/kernel/fast_charge/ac_charge_level;
+busybox echo $volt1 > /sys/kernel/fast_charge/usb_charge_level;
+busybox echo $volt2 > /sys/kernel/fast_charge/wireless_charge_level;
+
+# Initializing x allows the solution to properly handle integer lists with values <= 0
+# variable x has no possibility of being a negative integer(mv), thus, initialisation of x is not needed
+
+# Disable Failsafe (At your own risk) => added to UI(grep value =2)
+#if [ -e /sys/kernel/fast_charge/failsafe ]; then
+#       busybox echo "0" > /sys/kernel/fast_charge/failsafe
+#fi
+
+if grep $volt /sys/kernel/fast_charge/ac_charge_level; then
+busybox echo "Forced fast_charge enabled enabled! [Pass]" | busybox tee -a \$LOG
+else
+busybox echo "Forced fast_charge is not supported on your kernel! [Failed]" | busybox tee -a \$LOG
+fi
+
+
+echo "Disabling GENTLE_FAIR_SLEEPERS" >> $LOG
+
+# Disable Gentle Fair Sleepers(Would Improve smoothness)
+echo "NO_GENTLE_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features;
+echo "NO_NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features;
+echo "NO_NORMALIZED_SLEEPER" > /sys/kernel/debug/sched_features;
+
+# Kernel_panic
+# No effect on battery, but inproves stability and no random reboots
+# Only needed if kernel is poorly built
+
+busybox sysctl -w vm.panic_on_oom=0
+busybox sysctl -w kernel.softlockup_panic=0
+busybox sysctl -w kernel.panic_on_oops=0
+busybox sysctl -w kernel.panic=0
+busybox echo "" | busybox tee -a \$LOG
+busybox echo "Kernel panic is disabled" | busybox tee -a \$LOG
+
+
+# Disable Debugging
+
+#if [ -e /sys/module/lowmemorykiller/parameters/debug_level ]; then
+#    busybox chmod 644 /sys/module/lowmemorykiller/parameters/debug_level
+#    busybox echo "0" > /sys/module/lowmemorykiller/parameters/debug_level
+#fi
+#for parameter in /sys/module/*
+#   do
+#if [ -e $parameter/parameters/debug_mask ]; then
+#    busybox chmod 644 $parameter/parameters/debug_mask
+#    busybox echo "0" > $parameter/parameters/debug_mask
+#fi
+
+# A TON OF FEATURES WILL BE ADDED IN FUTURE RELEASES
+
+############################   MISC   ##################################
+#Kill media server to save battery
+
+busybox echo "$( date +"%m-%d-%Y %H:%M:%S" )  Killing mediaserver for battery save" | tee -a $LOG;
+
+
+#Reduces I/O read write speeds (slower response) ~unsignificant
+#Battery  drain and overheats ~significant
+killall -9 android.process.media
+killall -9 mediaserver
+busybox echo "Successfully killed" | busybox tee -a \$LOG
+
+
+# Junk
+echo "Cleaning Up Junk Files..." >> $LOG
+clear
+sync
+ echo "3" > /proc/sys/vm/drop_caches
+dc=/proc/sys/vm/drop_caches
+dc_v=`cat $dc`
+if [ "$dc_v" -gt 1 ]; then
+	 echo "1" > /proc/sys/vm/drop_caches
+fi
+rm /data/local/*.apk
+rm /data/local/tmp/*.apk
+rm /data/*.log
+rm /data/log/*.log
+rm /cache/*
+rm /cache/recovery/*
+rm /data/system/dropbox/*.txt
+rm /data/backup/pending/*.tmp
+rm /data/tombstones/*
+rm /sdcard/LOST.DIR/*
+
+
+############################   VALUES   ##################################
+# Network speed Tweaks
+echo "0" > /proc/sys/net/ipv4/tcp_timestamps;
+echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse;
+echo "1" > /proc/sys/net/ipv4/tcp_sack;
+echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle;
+echo "1" > /proc/sys/net/ipv4/tcp_window_scaling;
+echo "5" > /proc/sys/net/ipv4/tcp_keepalive_probes;
+echo "30" > /proc/sys/net/ipv4/tcp_keepalive_intvl;
+echo "30" > /proc/sys/net/ipv4/tcp_fin_timeout;
+echo "404480" > /proc/sys/net/core/wmem_max;
+echo "404480" > /proc/sys/net/core/rmem_max;
+echo "256960" > /proc/sys/net/core/rmem_default;
+echo "256960" > /proc/sys/net/core/wmem_default;
+echo "4096,16384,404480" > /proc/sys/net/ipv4/tcp_wmem;
+echo "4096,87380,404480" > /proc/sys/net/ipv4/tcp_rmem;
+echo "Applying Network Tweaks..." >> $LOG
+echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf;
+echo "1" > /proc/sys/net/ipv4/route/flush;
+echo "6144" > /proc/sys/net/ipv4/udp_rmem_min;
+echo "6144" > /proc/sys/net/ipv4/udp_wmem_min;
+echo "1" > /proc/sys/net/ipv4/tcp_rfc1337;
+echo "0" > /proc/sys/net/ipv4/ip_no_pmtu_disc;
+echo "0" > /proc/sys/net/ipv4/tcp_ecn;
+echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_wmem;
+echo "6144 87380 2097152" > /proc/sys/net/ipv4/tcp_rmem;
+echo "1" > /proc/sys/net/ipv4/tcp_fack;
+echo "2" > /proc/sys/net/ipv4/tcp_synack_retries;
+echo "2" > /proc/sys/net/ipv4/tcp_syn_retries;
+echo "1" > /proc/sys/net/ipv4/tcp_no_metrics_save;
+echo "1800" > /proc/sys/net/ipv4/tcp_keepalive_time;
+echo "0" > /proc/sys/net/ipv4/ip_forward;
+echo "1" > /proc/sys/net/ipv4/tcp_dsack;
+echo "0" > /proc/sys/net/ipv4/conf/default/accept_source_route;
+echo "0" > /proc/sys/net/ipv4/conf/all/accept_source_route;
+echo "0" > /proc/sys/net/ipv4/conf/all/accept_redirects;
+echo "0" > /proc/sys/net/ipv4/conf/default/accept_redirects;
+echo "0" > /proc/sys/net/ipv4/conf/all/secure_redirects;
+echo "0" > /proc/sys/net/ipv4/conf/default/secure_redirects;
+echo "0" > /proc/sys/net/ipv4/ip_dynaddr;
+echo "1440000" > /proc/sys/net/ipv4/tcp_max_tw_buckets;
+echo "57344 57344 524288" > /proc/sys/net/ipv4/tcp_mem;
+echo "2097152" > /proc/sys/net/core/rmem_max;
+echo "2097152" > /proc/sys/net/core/wmem_max;
+echo "262144" > /proc/sys/net/core/rmem_default;
+echo "262144" > /proc/sys/net/core/wmem_default;
+echo "20480" > /proc/sys/net/core/optmem_max;
+echo "2500" > /proc/sys/net/core/netdev_max_backlog;
+echo "50" > /proc/sys/net/unix/max_dgram_qlen;
+
+# VM Tweaks
+echo "Applying VM Settings..." >> $LOG
+echo "3" > /proc/sys/vm/page-cluster;
+echo "3000" > /proc/sys/vm/dirty_expire_centisecs;
+echo "500" > /proc/sys/vm/dirty_writeback_centisecs;
+echo "5120" > /proc/sys/vm/min_free_kbytes;
+echo "0" > /proc/sys/vm/oom_kill_allocating_task;
+echo "0" > /proc/sys/vm/panic_on_oom;
+echo "35" > /proc/sys/vm/dirty_background_ratio;
+echo "70" > /proc/sys/vm/dirty_ratio;
+echo "10" > /proc/sys/vm/vfs_cache_pressure;
+echo "1" > /proc/sys/vm/overcommit_memory;
+echo "4" > /proc/sys/vm/min_free_order_shift;
+echo "0" > /proc/sys/vm/laptop_mode;
+echo "0" > /proc/sys/vm/block_dump;
+echo "1" > /proc/sys/vm/oom_dump_tasks;
+if [ "$mem" -lt 524288 ];then
+	sysctl -w vm.dirty_background_ratio=15;
+	sysctl -w vm.dirty_ratio=30;
+elif [ "$mem" -lt 1049776 ];then
+	sysctl -w vm.dirty_background_ratio=10;
+	sysctl -w vm.dirty_ratio=20;
+else 
+	sysctl -w vm.dirty_background_ratio=5;
+	sysctl -w vm.dirty_ratio=10;
+fi;
+
+
+# Waifai sleeper
+sqlite=/system/xbin/sqlite3
+
+wifi_idle_wait=30000 #30 secs
+RETURN_VALUE=\$(\$sqlite /data/data/com.android.providers.settings/databases/settings.db "select value from secure where name='wifi_idle_ms'")
+if [ "\$RETURN_VALUE" = '' ]; then
+   \$sqlite /data/data/com.android.providers.settings/databases/settings.db "insert into secure (name, value) values ('wifi_idle_ms', \$wifi_idle_wait )"
+else
+   \$sqlite /data/data/com.android.providers.settings/databases/settings.db "update secure set value=\$wifi_idle_wait where name='wifi_idle_ms'"
+fi
+busybox echo "" | busybox tee -a \$LOG
+busybox echo "Wifi sleeper is activated.." | busybox tee -a \$LOG
+
+mount -o remount,ro -t auto /
+mount -t rootfs -o remount,ro rootfs
+mount -o remount,ro -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+
+echo "" | tee -a $LOG
+echo "$( date +"%m-%d-%Y %H:%M:%S" )Intelliboost engine turned on successfully" | tee -a $LOG;
