@@ -21,101 +21,46 @@ fi;
 # sqlite3 on boot
 
 if [ -e /data/intelliboost/sqlitecnt ]; then
-	echo "SQlite Counter File Exists"
+	busybox echo "SQlite Counter File Exists"
 	CNT=/data/intelliboost/sqlitecnt
 	SC=`cat $CNT`
 	if [ $SC -eq 0 ]; then
-		echo "1" > $CNT
-		echo "First Boot"
+		busybox echo "1" > $CNT
+		busybox echo "First Boot"
 		exit
 	elif [ $SC -eq 1 ]; then
-		echo "2" > $CNT
-		echo "Second Boot"
+		busybox echo "2" > $CNT
+		busybox echo "Second Boot"
 		exit
 	elif [ $SC -eq 2 ]; then
-		echo "Third Boot"
+		busybox echo "Third Boot"
 
 		   #time and date in enoch format
-	echo "Starting Sqlite3 Vacuum $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG;
-		echo "Now Optimizing"
-		# Loop
-		rm -f /data/intelliboost/sqlitecnt
-		touch /data/intelliboost/sqlitecnt
-		echo "0" > /data/intelliboost/sqlitecnt
+	busybox echo "Starting Sqlite3 Vacuum and reindex $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG;
+		busybox echo "Now Optimizing"
 
-
-		for i in \
-		`busybox find /data -iname "*.db"`; 
-		do \
-			/system/xbin/sqlite3 $i 'VACUUM;'; 
-			/system/xbin/sqlite3 $i 'REINDEX;'; 
-		done;
-
-		if [ -d "/dbdata" ]; then
-			for i in \
-			`busybox find /dbdata -iname "*.db"`; 
-			do \
-				/system/xbin/sqlite3 $i 'VACUUM;'; 
-				/system/xbin/sqlite3 $i 'REINDEX;'; 
-			done;
+		# Vacuum
+	for i in `busybox find /d* -iname "*.db"`; do
+		/system/xbin/sqlite3 $i 'VACUUM;';
+		resVac=$?
+		if [ $resVac == 0 ]; then
+			resVac="SUCCESS";
+		else
+			resVac="ERRCODE-$resVac";
 		fi;
-
-
-		if [ -d "/datadata" ]; then
-			for i in \
-			`busybox find /datadata -iname "*.db"`; 
-			do \
-				/system/xbin/sqlite3 $i 'VACUUM;'; 
-				/system/xbin/sqlite3 $i 'REINDEX;'; 
-			done;
+		
+		# Reindex
+		/system/xbin/sqlite3 $i 'REINDEX;';
+		resIndex=$?
+		if [ $resIndex == 0 ]; then
+			resIndex="SUCCESS";
+		else
+			resIndex="ERRCODE-$resIndex";
 		fi;
-
-
-		for i in \
-		`busybox find /sdcard -iname "*.db"`; 
-		do \
-			/system/xbin/sqlite3 $i 'VACUUM;'; 
-			/system/xbin/sqlite3 $i 'REINDEX;'; 
-		done;
-	fi;
-else
-	touch /data/intelliboost/sqlitecnt
-	echo "0" > /data/intelliboost/sqlitecnt
-	echo "First Installation"
-	echo "Now Optimizing"
-		for i in \
-		`busybox find /data -iname "*.db"`; 
-		do \
-			/system/xbin/sqlite3 $i 'VACUUM;'; 
-			/system/xbin/sqlite3 $i 'REINDEX;'; 
-		done;
-
-		if [ -d "/dbdata" ]; then
-			for i in \
-			`busybox find /dbdata -iname "*.db"`; 
-			do \
-				/system/xbin/sqlite3 $i 'VACUUM;'; 
-				/system/xbin/sqlite3 $i 'REINDEX;'; 
-			done;
-		fi;
-
-
-		if [ -d "/datadata" ]; then
-			for i in \
-			`busybox find /datadata -iname "*.db"`; 
-			do \
-				/system/xbin/sqlite3 $i 'VACUUM;'; 
-				/system/xbin/sqlite3 $i 'REINDEX;'; 
-			done;
-		fi;
-
-
-		for i in \
-		`busybox find /sdcard -iname "*.db"`; 
-		do \
-			/system/xbin/sqlite3 $i 'VACUUM;'; 
-			/system/xbin/sqlite3 $i 'REINDEX;'; 
-				echo "Sqlite3 Vacuum finished at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG;
+		busybox echo "Database $i:  VACUUM=$resVac  REINDEX=$resIndex" | tee -a $LOG;
+	done
+	  
+				busybox echo "Finished Sqlite3 Vacuum and reindex $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG;
 
 		done;
 fi;
