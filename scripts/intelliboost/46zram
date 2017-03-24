@@ -1,6 +1,8 @@
 #!/system/bin/sh
 # Dynamic ZRAM shell script
 # Thanks sonickles9
+# TODO: unsure whether zram is recomended, might kill battery for ram, therefore threshoild value is 5
+# more aggro will be 10 or 15 for threshold values
 
 mount -o remount,rw -t auto /
 mount -t rootfs -o remount,rw rootfs
@@ -58,7 +60,7 @@ done
 
 #calculate sizes
 RAM=$((`busybox awk '/MemTotal/{print $2}' /proc/meminfo`))
-# ZTHRESHOLD="$($getprop WATSON_ZRAM.threshold $prop)"
+ZTHRESHOLD="5"
 ZRAM1=$(( $RAM * $ZTHRESHOLD / 100 ))
 busybox echo "val1 = $RAM * $ZTHRESHOLD / 100 = $ZRAM1 " >> $LOG
 val2=$(($(busybox awk '/MemFree/{print $2}' /proc/meminfo)))
