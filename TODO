@@ -1,19 +1,21 @@
 Todo:
 
 Primary:
-=> Fix dynamic zram
 => Add verbose logging for all scripts with login enabled
 => Finalise scripts and add no-log scripts
+=> Fix busybox touch
 => Compile and add required binaries
 => Fix init.d enabler(unapck boot.img then repack)
 => fix update binary
+=> fix backup in /common
 
 Secondary:
 => Lmk to be dynamic
 => Fix kernel tweaks on cluster based SOCs (ARM/MediaTech big.LITTLE)
 => Add x86 support
-=> Add UI
+=> Add control panel
 => Create profiles in UI (Gaming, performance, etc) [Ensure that it's on-the-fly]
+=> Add setup one time script, it rm -f after redirecting to control panel
 => Execution of scripts on-the-fly using Crossbreeder
 => Add a few scripts to have UI in terminal shell(reverse some extreme powersaving tweaks)
 => Add kernel tweaks

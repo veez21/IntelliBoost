@@ -22,6 +22,11 @@ else
   touch \$LOG;
 fi;
 
+if [ ! -e /data/intelliboost/memstat ]; then
+busybox touch /data/intelliboost/memstat 2>> $ERR
+busybox echo "0" >> /data/intelliboost/memstat 2>> $ERR
+fi;
+
 busybox echo "Calculating ZRAM values..." | busybox tee -a \$LOG
 
 #find swap devices
@@ -67,10 +72,10 @@ val2=$(($(busybox awk '/MemFree/{print $2}' /proc/meminfo)))
 
 busybox echo "val2 = $val2" >> $LOG
 val3=$(( ( $RAM - $val2 ) ))
-busybox echo $val3 >> /data/intelliboost/logs/memstat 2>> $LOG
+busybox echo $val3 >> /data/intelliboost/memstat 2>> $LOG
 busybox echo "val3 = $val3" >> $LOG
 
-MEMSTATS=($( busybox cat /system/data/intelliboost/logs/memstat ))
+MEMSTATS=($( busybox cat /system/data/intelliboost/memstat ))
 for stat in ${!MEMSTATS[@]}
 do
 mem=$(( $mem+${MEMSTATS[$stat]} ))
