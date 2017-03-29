@@ -24,6 +24,7 @@ else
 fi;
 
 busybox echo "Tweaking minfree, cost & debug values..." | busybox tee -a \$LOG
+
 # Cost
 if [ -e /sys/module/lowmemorykiller/parameters/cost ]; then
 busybox chmod 644 /sys/module/lowmemorykiller/parameters/cost
@@ -44,9 +45,10 @@ busybox echo "Multitasking RAM manager for \$RAM mb devices successfully applied
 
 # Enable OOM Killer
 # Might cause FCs if you have low ram running high quality games
+# Saves battery in return
+
 busybox sysctl -e -w vm.oom_dump_tasks=1
 busybox sysctl -e -w vm.oom_kill_allocating_task=1
-# Saves battery in return
 
 # ADJ Values
 echo "0,1,3,5,7,15" > /sys/module/lowmemorykiller/parameters/adj;

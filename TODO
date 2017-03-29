@@ -15,7 +15,7 @@ Secondary:
 => Add UI
 => Create profiles in UI (Gaming, performance, etc) [Ensure that it's on-the-fly]
 => Execution of scripts on-the-fly using Crossbreeder
-=> Add a few scripts to have UI in terminal shell
+=> Add a few scripts to have UI in terminal shell(reverse some extreme powersaving tweaks)
 => Add kernel tweaks
 => Add governer tweaks (merge govtuner sources, using UI)
 => GPS Config selection in UI

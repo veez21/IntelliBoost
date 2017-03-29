@@ -11,7 +11,6 @@ mount -o remount,rw /cache
 
 # Define vars
 LOG=/data/intelliboost/logs/renice.log
-getprop=/system/etc/resourceIB/getprop
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
