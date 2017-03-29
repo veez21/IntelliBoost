@@ -3,6 +3,7 @@ Todo:
 Primary:
 => fix dynamic lmk
 => Fic dynamic zram
+=> Add verbose logging for all scripts with loogin enabled
 => Finalise scripts and add no-log scripts
 => Compile and add required binaries
 => Fix init.d enabler(unapck boot.img then repack)
