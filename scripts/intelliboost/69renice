@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# Renicer
+# Renicer, for permission level
 # With verbose logging
 # TODO: Add more apps here
 
@@ -20,6 +20,10 @@ touch \$LOG;
 else
   touch \$LOG;
 fi;
+
+#start daemon
+busybox nohup 69renicer &
+echo $!
 
 (
 while true

@@ -1,15 +1,15 @@
 Todo:
 
 Primary:
-=> fix dynamic lmk
-=> Fic dynamic zram
-=> Add verbose logging for all scripts with loogin enabled
+=> Fix dynamic zram
+=> Add verbose logging for all scripts with login enabled
 => Finalise scripts and add no-log scripts
 => Compile and add required binaries
 => Fix init.d enabler(unapck boot.img then repack)
 => fix update binary
 
-Secondary
+Secondary:
+=> Lmk to be dynamic
 => Fix kernel tweaks on cluster based SOCs (ARM/MediaTech big.LITTLE)
 => Add x86 support
 => Add UI
