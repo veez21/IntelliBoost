@@ -1,0 +1,71 @@
+#!/system/bin/sh
+# Loop optimising space use (why am i doing this lmao)
+
+mount -o remount,rw -t auto /
+mount -t rootfs -o remount,rw rootfs
+mount -o remount,rw -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+
+# Set Variables
+    LOG=/data/intelliboost/logs/loop.log
+	count=/data/intelliboost/loop
+	zap=`cat $count`
+
+# Loop to reset log values
+if [ -f \$LOG ]; then
+busybox rm -f \$LOG;
+touch \$LOG;
+else
+  touch \$LOG;
+fi;
+
+	if [ $zap -eq 0 ]; then
+		busybox echo "1" > $count
+		busybox echo "First Boot, automatic space optimisation starts at 5th boot" | tee -a $LOG
+		exit
+
+	elif [ $zap -eq 1 ]; then
+		busybox echo "2" > $count
+		busybox echo "Second Boot, automatic space optimisation starts at 5th boot" | tee -a $LOG
+		exit
+
+	elif [ $zap -eq 2 ]; then
+		busybox echo "3" > $count
+		busybox echo "Third Boot, automatic space optimisation starts at 5th boot" | tee -a $LOG
+		exit
+
+	elif [ $zap -eq 3 ]; then
+		busybox echo "4" > $count
+		busybox echo "Fourth Boot, automatic space optimisation starts at 5th boot" | tee -a $LOG
+		exit		
+
+	elif [ $zap -eq  ]; then
+		busybox echo "0" > $count
+	    busybox echo "Fith Boot" | tee -a $LOG
+		busybox echo "This log is as good as dead, so fml" | tee -a $LOG
+
+# Force recursive deletion of logs in /data/intelliboost/logs/
+busybox rm -rf /data/intelliboost/logs
+
+# Force recursive deletion of verbose logging scripts in /system/etc/intelliboost
+busybox rm -rf /system/etc/intelliboost
+mkdir /system/etc/intelliboost
+
+# Move log-free clean scripts to run on boot from /data/logfreescripts to /system/etc/intelliboost, and set perms
+mv -v /data/logfreescripts/* /system/etc/intelliboost
+chmod -R ug+rw /system/etc/intelliboost
+
+# Final cleanup
+busybox rm -rf /data/logfreescripts
+
+# I'm already deleted on line 52, im just kept in memory as i am still being executed initially
+# Bye anyways busybox rm -rf /* :)
+# Lol if i really did that it'll be such a troll lmao
+# byeeeee....wait i still need to remount
+
+mount -o remount,ro -t auto /
+mount -t rootfs -o remount,ro rootfs
+mount -o remount,ro -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache

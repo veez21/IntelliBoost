@@ -1,0 +1,72 @@
+#!/system/bin/sh
+# Sqlite yay
+# Defrags database files using latest SQULITE3 binary
+
+mount -o remount,rw -t auto /
+mount -t rootfs -o remount,rw rootfs
+mount -o remount,rw -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+
+LOG=/data/intelliboost/logs/sqlite3.log
+
+# Loop to reset log values
+if [ -f \$LOG ]; then
+busybox rm -f \$LOG;
+touch \$LOG;
+else
+  touch \$LOG;
+fi;
+
+# sqlite3 on boot
+
+if [ -e /data/intelliboost/sqlitecnt ]; then
+	busybox echo "SQlite Counter File Exists"
+	CNT=/data/intelliboost/sqlitecnt
+	SC=`cat $CNT`
+	if [ $SC -eq 0 ]; then
+		busybox echo "1" > $CNT
+		busybox echo "First Boot"
+		exit
+	elif [ $SC -eq 1 ]; then
+		busybox echo "2" > $CNT
+		busybox echo "Second Boot"
+		exit
+	elif [ $SC -eq 2 ]; then
+		busybox echo "Third Boot"
+
+		   #time and date in enoch format
+	busybox echo "Starting Sqlite3 Vacuum and reindex $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG;
+		busybox echo "Now Optimizing"
+
+		# Vacuum
+	for i in `busybox find /d* -iname "*.db"`; do
+		/system/xbin/sqlite3 $i 'VACUUM;';
+		resVac=$?
+		if [ $resVac == 0 ]; then
+			resVac="SUCCESS";
+		else
+			resVac="ERRCODE-$resVac";
+		fi;
+		
+		# Reindex
+		/system/xbin/sqlite3 $i 'REINDEX;';
+		resIndex=$?
+		if [ $resIndex == 0 ]; then
+			resIndex="SUCCESS";
+		else
+			resIndex="ERRCODE-$resIndex";
+		fi;
+		busybox echo "Database $i:  VACUUM=$resVac  REINDEX=$resIndex" | tee -a $LOG;
+	done
+	  
+				busybox echo "Finished Sqlite3 Vacuum and reindex $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG;
+
+		done;
+fi;
+
+mount -o remount,ro -t auto /
+mount -t rootfs -o remount,ro rootfs
+mount -o remount,ro -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache

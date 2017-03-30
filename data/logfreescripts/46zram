@@ -1,0 +1,69 @@
+#!/system/bin/sh
+mount -o remount,rw -t auto /
+mount -t rootfs -o remount,rw rootfs
+mount -o remount,rw -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+getprop=/system/etc/resourceIB/getprop
+if [ ! -e /data/intelliboost/memstat ]; then
+busybox touch /data/intelliboost/memstat
+busybox echo "0" >> /data/intelliboost/memstat
+fi;
+if [ -e "/dev/block/zram0" ]; then
+ZRAMD="zram"
+elif  [ -e "/dev/block/vnswap0" ]; then
+ZRAMD="vnswap"
+else
+exit 1
+fi
+num="0"
+ZRAMN=$(busybox find /dev/block -name $ZRAMD* | busybox sort | tail -n 1 )
+ZRAMN=$((${ZRAMN#*$ZRAMD}+1))
+for z in $(busybox find /dev/block -name $ZRAMD* | busybox sort )
+do
+if [ -e /system/bin/swapoff ]
+then
+/system/bin/swapoff $z
+else
+busybox swapoff $z
+fi
+if [ -e "/sys/block/$ZRAMD$num/reset" ]
+then
+busybox echo 1 > /sys/block/$ZRAMD$num/reset
+fi
+num=$(($num+1))
+done
+RAM=$((`busybox awk '/MemTotal/{print $2}' /proc/meminfo`))
+ZTHRESHOLD="5"
+ZRAM1=$(( $RAM * $ZTHRESHOLD / 100 ))
+val2=$(($(busybox awk '/MemFree/{print $2}' /proc/meminfo)))
+val3=$(( ( $RAM - $val2 ) ))
+busybox echo $val3 >> /data/intelliboost/memstat
+MEMSTATS=($( busybox cat /system/data/intelliboost/memstat ))
+for stat in ${!MEMSTATS[@]}
+do
+mem=$(( $mem+${MEMSTATS[$stat]} ))
+done
+mem=$(($mem/${#MEMSTATS[@]}))
+ADDMEM=$((($MEMSTATS) * $ZTHRESHOLD / 10))
+ZRAM=$((($ZRAM1+$ADDMEM)*26/100 * 1024))
+num=0
+for z in $(busybox find /dev/block -name $ZRAMD* | busybox sort )
+do
+busybox echo $(( $ZRAM / $ZRAMN )) > /sys/block/$ZRAMD$num/disksize
+num=$(($num+1))
+done
+for z in $(busybox find /dev/block -name $ZRAMD* | busybox sort )
+do
+busybox mkswap $z
+num=$(($num+1))
+done
+num=0
+for z in $(busybox find /dev/block -name $ZRAMD* | busybox sort )
+do
+busybox swapon $z -p 256
+num=$(($num+1))
+done
+swappiness=$(( ($ZRAM / 1024 / 1024) * 100 / ($RAM / 1024) + 50 ))
+busybox sysctl -w vm.swappiness=$swappiness
+busybox sysctl -w vm.vfs_cache_pressure=10

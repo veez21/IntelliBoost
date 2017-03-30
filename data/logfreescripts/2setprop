@@ -1,0 +1,126 @@
+#!/system/bin/sh
+mount -o remount,rw -t auto /
+mount -t rootfs -o remount,rw rootfs
+mount -o remount,rw -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+setprop=/system/etc/resourceIB/setprop
+$setprop net.tcp.buffersize.default 4096,87380,256960,4096,16384,256960 /system/build.prop
+$setprop net.tcp.buffersize.wifi 4096,87380,256960,4096,16384,256960 /system/build.prop
+$setprop net.tcp.buffersize.umts 4096,87380,256960,4096,16384,256960 /system/build.prop
+$setprop net.tcp.buffersize.gprs 4096,87380,256960,4096,16384,256960 /system/build.prop
+$setprop net.tcp.buffersize.edge 4096,87380,256960,4096,16384,256960 /system/build.prop
+$setprop ro.ril.fast.dormancy.rule 1 /system/build.prop
+$setprop persist.radio.data_no_toggle 1 /system/build.prop
+$setprop persist.cust.tel.eons 1 /system/build.prop
+$setprop ro.config.hw_fast_dormancy 1 /system/build.prop
+$setprop logcat.live disable /system/build.prop
+busybox rm -f /dev/log/main
+$setprop debugtool.anrhistory 0 /system/build.prop
+$setprop profiler.debugmonitor false /system/build.prop
+$setprop profiler.launch false /system/build.prop
+$setprop profiler.hung.dumpdobugreport false /system/build.prop
+$setprop persist.android.strictmode 0 /system/build.prop
+$setprop debug.performance.tuning 1 /system/build.prop
+$setprop video.accelerate.hw 1 /system/build.prop
+$setprop persist.sys.use_dithering 1 /system/build.prop
+$setprop net.dns1 8.8.8.8 /system/build.prop
+$setprop net.dns2 8.8.4.4 /system/build.prop
+$setprop net.rmnet0.dns1 8.8.8.8 /system/build.prop
+$setprop net.rmnet0.dns2 8.8.4.4 /system/build.prop
+$setprop net.ppp0.dns1 8.8.8.8 /system/build.prop
+$setprop net.ppp0.dns2 8.8.4.4 /system/build.prop
+$setprop net.wlan0.dns1 8.8.8.8 /system/build.prop
+$setprop net.wlan0.dns2 8.8.4.4 /system/build.prop
+$setprop net.eth0.dns1 8.8.8.8 /system/build.prop
+$setprop net.eth0.dns2 8.8.4.4 /system/build.prop
+$setprop net.gprs.dns1 8.8.8.8 /system/build.prop
+$setprop net.gprs.dns2 8.8.4.4 /system/build.prop
+$setprop debug.sf.hw 1 /system/build.prop
+$setprop ro.ril.power_collapse 0 /system/build.prop
+$setprop ro.ril.disable.power.collapse 1 /system/build.prop
+$setprop persist.sys.use_dithering 0 /system/build.prop
+$setprop wifi.supplicant_scan_interval 250 /system/build.prop
+$setprop power_supply.wakeup enable /system/build.prop
+$setprop power.saving.mode 1 /system/build.prop
+$setprop ro.config.hw_power_saving 1 /system/build.prop
+$setprop ro.config.hw_power_saving true /system/build.prop
+$setprop persist.radio.add_power_save 1 /system/build.prop
+$setprop pm.sleep_mode 1 /system/build.prop
+$setprop ro.ril.disable.power.collapse 0 /system/build.prop
+$setprop ro.vold.umsdirtyratio 20 /system/build.prop
+$setprop profiler.force_disable_err_rpt 1 /system/build.prop
+$setprop profiler.force_disable_ulog 1 /system/build.prop
+$setprop dalvik.vm.checkjni false /system/build.prop
+$setprop dalvik.vm.execution-mode int:jit /system/build.prop
+$setprop ro.ril.power_collapse 1 /system/build.prop
+$setprop ro.mot.eri.losalert.delay 1000 /system/build.prop
+$setprop persist.sys.purgeable_assets 1 /system/build.prop
+$setprop ro.config.hw_quickpoweron true
+$setprop persist.telephony.support.ipv6 1 /system/build.prop
+$setprop persist.telephony.support.ipv4 1 /system/build.prop
+busybox sysctl -w net.ipv4.conf.all.rp_filter 2 /system/build.prop
+busybox sysctl -w net.ipv4.conf.default.rp_filter 2 /system/build.prop
+busybox sysctl -w net.ipv4.tcp_max_syn_backlog 1024 /system/build.prop
+busybox sysctl -w net.ipv4.tcp_synack_retries 2 /system/build.prop
+$setprop ro.ril.hsxpa 3 /system/build.prop
+$setprop ro.ril.gprsclass 12 /system/build.prop
+$setprop ro.ril.hep 1 /system/build.prop
+$setprop ro.ril.hsdpa.category 8 /system/build.prop
+$setprop ro.ril.enable.3g.prefix 1 /system/build.prop
+$setprop ro.ril.hsupa.category 6 /system/build.prop
+$setprop ro.ril.enable.sdr 1 /system/build.prop
+$setprop ro.ril.enable.gea3 1 /system/build.prop
+$setprop ro.ril.enable.a52 0 /system/build.prop
+$setprop ro.ril.enable.a53 1 /system/build.prop
+$setprop ro.ril.hep 0 /system/build.prop
+$setprop ro.ril.hsxpa 2 /system/build.prop
+$setprop ro.ril.enable.dtm 1 /system/build.prop
+$setprop ro.ril.htcmaskw1.bitmask 4294967295 /system/build.prop
+$setprop ro.ril.htcmaskw1 14449 /system/build.prop
+$setprop ro.telephony.call_ring.delay 0 /system/build.prop
+$setprop ring.delay 0 /system/build.prop
+$setprop ro.config.nocheckin 1 /system/build.prop
+$setprop ro.kernel.android.checkjni 0 /system/build.prop
+( while [ "$(getprop sys.boot_completed)" != 1 ]; do
+sleep 20
+done
+$setprop ro.sys.fw.dex2oat_thread_count 4 /system/build.prop
+$setprop dalvik.vm.dex2oat-thread_count 4 /system/build.prop
+$setprop dalvik.vm.dex2oat-threads 4 /system/build.prop
+$setprop jitdalvik.vm.checkjni false /system/build.prop
+$setprop dalvik.vm.dexopt-data-only 1 /system/build.prop
+$setprop dalvik.vm.heapstartsize 5m /system/build.prop
+$setprop dalvik.vm.verify-bytecode false /system/build.prop
+$setprop dalvik.vm.lockprof.threshold 250 /system/build.prop
+$setprop dalvik.vm.dexopt-flags m=v,o=y /system/build.prop
+$setprop dalvik.vm.jmiopts=forcecopy /system/build.prop
+$setprop dalvik.vm.heapgrowthlimit 48m /system/build.prop
+$setprop dalvik.vm.heapsize 256m /system/build.prop
+if [ "$RAM" -lt "512000" ]
+then
+$setprop persist.sys.force_highendgfx true /system/build.prop
+$setprop ro.config.low_ram true /system/build.prop
+fi
+$setprop touch.pressure.scale 0.3 /system/build.prop
+$setprop view.touch_slop 2 /system/build.prop
+$setprop view.scroll_friction 1.5 /system/build.prop
+$setprop ro.min_pointer_dur  8 /system/build.prop
+$setprop touch.size.calibration geometric /system/build.prop
+$setprop touch.size.scale 100 /system/build.prop
+$setprop touch.size.bias 70 /system/build.prop
+$setprop touch.pressure.calibration amplitude /system/build.prop
+$setprop view.minimum_fling_velocity 25 /system/build.prop
+$setprop ro.max.fling_velocity 12000 /system/build.prop
+$setprop ro.min.fling_velocity 8000 /system/build.prop
+$setprop ro.use_data_netmgrd true /system/build.prop
+$setprop persist.data_netmgrd_nint 8 /system/build.prop
+$setprop persist.data_netmgrd_mtu 1482 /system/build.prop
+$setprop wifi.supplicant_scan_interval 180 /system/build.prop
+$setprop pm.sleep_mode 1 /system/build.prop
+$setprop ro.ril.disable.power.collapse 0 /system/build.prop
+mount -o remount,ro -t auto /
+mount -t rootfs -o remount,ro rootfs
+mount -o remount,ro -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache

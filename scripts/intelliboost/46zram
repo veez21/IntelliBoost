@@ -23,8 +23,8 @@ else
 fi;
 
 if [ ! -e /data/intelliboost/memstat ]; then
-busybox touch /data/intelliboost/memstat 2>> $ERR
-busybox echo "0" >> /data/intelliboost/memstat 2>> $ERR
+busybox touch /data/intelliboost/memstat 2>> $LOG
+busybox echo "0" >> /data/intelliboost/memstat 2>> $LOG
 fi;
 
 busybox echo "Calculating ZRAM values..." | busybox tee -a \$LOG

@@ -1,0 +1,28 @@
+#!/system/bin/sh
+mount -o remount,rw -t auto /
+mount -t rootfs -o remount,rw rootfs
+mount -o remount,rw -t auto /system
+mount -o remount,rw /data
+mount -o remount,rw /cache
+busybox nohup 69renicer &
+echo $!
+(
+while true
+do
+busybox renice -10 $( pgrep com.android.systemui ) 
+busybox renice -8 $(pgrep zygote)
+busybox renice -7 $(pgrep surfaceflinger)
+busybox renice -7 $(pgrep system_server) 
+if pgrep com.google.android.gms
+then
+busybox renice 19 $(pgrep com.google.android.gms)
+fi
+if pgrep com.google.android.gsf
+then
+busybox renice 19 $(pgrep com.google.android.gsf)
+fi
+if pgrep org.omnirom.omniswitch
+then
+busybox renice -11 $(pgrep org.omnirom.omniswitch)
+fi
+done) &
