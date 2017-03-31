@@ -6,6 +6,8 @@ mount -o remount,rw /data
 mount -o remount,rw /cache
 A=$(cat /sys/class/power_supply/battery/capacity);
 ver=BETA v2
+sqlite=/system/xbin/sqlite3
+wifi_idle_wait=30000
 if [ -f "/sys/devices/system/cpu/sched_mc_power_savings" ]; then
 busybox echo "2" > /sys/devices/system/cpu/sched_mc_power_savings;
 fi;
@@ -113,8 +115,7 @@ else
 	sysctl -w vm.dirty_background_ratio=5;
 	sysctl -w vm.dirty_ratio=10;
 fi;
-sqlite=/system/xbin/sqlite3
-wifi_idle_wait=30000
+
 RETURN_VALUE=\$(\$sqlite /data/data/com.android.providers.settings/databases/settings.db "select value from secure where name='wifi_idle_ms'")
 if [ "\$RETURN_VALUE" = '' ]; then
    \$sqlite /data/data/com.android.providers.settings/databases/settings.db "insert into secure (name, value) values ('wifi_idle_ms', \$wifi_idle_wait )"

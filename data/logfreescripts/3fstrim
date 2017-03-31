@@ -1,38 +1,12 @@
 #!/system/bin/sh
-# Fstrim on boot script
-
 mount -o remount,rw -t auto /
 mount -t rootfs -o remount,rw rootfs
 mount -o remount,rw -t auto /system
 mount -o remount,rw /data
 mount -o remount,rw /cache
-
-# LOG
-LOG=/data/intelliboost/logs/fstrim.log
-
-# Loop to reset log values
-if [ -f \$LOG ]; then
-busybox rm -f \$LOG;
-touch \$LOG;
-else
-  touch \$LOG;
-fi;
-
-# Fstrim binary (busybox applet)
-# Current time is in enoch format
-
-	echo "================================================" | tee -a $LOG
-	echo " Fstrim Start at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG
-	echo "================================================" | tee -a $LOG
-
-	busybox fstrim -v /system | tee -a $LOG;
-	busybox fstrim -v /data | tee -a $LOG;
-	busybox fstrim -v /cache | tee -a $LOG;
-
-	echo "================================================" | tee -a $LOG
-	echo " Fstrim Done at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG
-	echo "================================================" | tee -a $LOG
-
+busybox fstrim -v /system | tee -a $LOG;
+busybox fstrim -v /data | tee -a $LOG;
+busybox fstrim -v /cache | tee -a $LOG;
 mount -o remount,ro -t auto /
 mount -t rootfs -o remount,ro rootfs
 mount -o remount,ro -t auto /system

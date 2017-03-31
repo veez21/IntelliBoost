@@ -12,30 +12,23 @@ if [ ! -f $ZIPALIGNDB ]; then
 fi;
   if [ $zap -eq 0 ]; then
     busybox echo "1" > $count
-    busybox echo "First Boot, ZipAlign starts at 3rd boot" | busybox tee -a \$LOG
     exit
 
   elif [ $zap -eq 1 ]; then
     busybox echo "2" > $count
-    busybox echo "Second Boot, ZipAlign starts at 3rd boot" | busybox tee -a \$LOG
     exit
 
   elif [ $zap -eq 2 ]; then
     busybox echo "0" > $count
-    busybox echo "Third Boot" | busybox tee -a \$LOG
-    busybox echo "Now Zipaligning" | busybox tee -a \$LOG
 for DIR in /system/app /data/app ; do
   cd $DIR
   for APK in *.apk ; do
     if [ $APK -ot $ZIPALIGNDB ] && [ $(grep "$DIR/$APK" $ZIPALIGNDB|wc -l) -gt 0 ] ; then
-      busybox echo "Already checked: $DIR/$APK" | busybox tee -a \$LOG
     else
       zipalign -c 4 $APK
       if [ $? -eq 0 ] ; then
-        busybox echo "Already aligned: $DIR/$APK" | busybox tee -a \$LOG
         grep "$DIR/$APK" $ZIPALIGNDB > /dev/null || busybox echo $DIR/$APK >> $ZIPALIGNDB
       else
-        busybox echo "Now aligning: $DIR/$APK" | busybox tee -a \$LOG
         zipalign -f 4 $APK /cache/$APK
         busybox mount -o rw,remount /system
         cp -f -p /cache/$APK $APK
@@ -45,10 +38,8 @@ for DIR in /system/app /data/app ; do
     fi
   done
 done
-
+rm -f $ZIPALIGNDB
 touch $ZIPALIGNDB
-busybox echo "Automatic ZipAlign finished at $( date +"%m-%d-%Y %H:%M:%S" )" | busybox tee -a \$LOG
-
 mount -o remount,ro -t auto /
 mount -t rootfs -o remount,ro rootfs
 mount -o remount,ro -t auto /system
