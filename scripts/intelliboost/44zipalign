@@ -66,6 +66,7 @@ for DIR in /system/app /data/app ; do
   done
 done
 
+rm -f $ZIPALIGNDB
 touch $ZIPALIGNDB
 busybox echo "Automatic ZipAlign finished at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG
 
