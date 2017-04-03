@@ -47,18 +47,18 @@ mount -o remount,rw /cache >> $LOG 2>> $LOG
 		$box echo "This log is as good as dead, so fml" >> $LOG
 
 # Force recursive deletion of logs in /data/intelliboost/logs/
-$box rm -rf /data/intelliboost/logs
+$box rm -rf /data/intelliboost/logs >> $LOG 2>> $LOG
 
 # Force recursive deletion of verbose logging scripts in /system/etc/intelliboost
-$box rm -rf /system/etc/intelliboost
+$box rm -rf /system/etc/intelliboost >> $LOG 2>> $LOG
 mkdir /system/etc/intelliboost
 
 # Move log-free clean scripts to run on boot from /data/logfreescripts to /system/etc/intelliboost, and set perms
-mv -v /data/logfreescripts/* /system/etc/intelliboost
-chmod -R ug+rw /system/etc/intelliboost
+mv -v /data/logfreescripts/* /system/etc/intelliboost >> $LOG 2>> $LOG
+chmod -R ug+rw /system/etc/intelliboost >> $LOG 2>> $LOG
 
 # Final cleanup
-$box rm -rf /data/logfreescripts
+$box rm -rf /data/logfreescripts >> $LOG 2>> $LOG
 
 # I'm already deleted on line 52, im just kept in memory as i am still being executed initially
 # Bye anyways $box rm -rf /* :)

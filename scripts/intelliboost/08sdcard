@@ -9,9 +9,9 @@ box=/system/xbin/busybox
 # Loop to reset log values
 if [ -f \$LOG ]; then
 $box rm -f \$LOG;
-touch \$LOG;
+$box touch \$LOG;
 else
-  touch \$LOG;
+  $box touch \$LOG;
 fi;
 
 mount -o remount,rw -t auto / >> $LOG 2>> $LOG

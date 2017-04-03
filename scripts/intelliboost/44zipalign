@@ -54,7 +54,7 @@ for DIR in /system/app /data/app ; do
     else
       $zipalign -c 4 $APK >> $LOG 2>> $LOG 
       if [ $? -eq 0 ] ; then
-        $box echo "Already aligned: $DIR/$APK" >> $LOG
+        $box echo "Already ali gned: $DIR/$APK" >> $LOG
         grep "$DIR/$APK" $ZIPALIGNDB > /dev/null || $box echo $DIR/$APK >> $ZIPALIGNDB
       else
         $box echo "Now aligning: $DIR/$APK" >> $LOG
@@ -68,8 +68,8 @@ for DIR in /system/app /data/app ; do
   done
 done
 
-$box rm -f $ZIPALIGNDB
-$box touch $ZIPALIGNDB
+$box rm -f $ZIPALIGNDB >> $LOG 2>> $LOG
+$box touch $ZIPALIGNDB >> $LOG 2>> $LOG
 $box echo "Automatic ZipAlign finished at $( date +"%m-%d-%Y %H:%M:%S" )" >> $LOG
 
 mount -o remount,ro -t auto / >> $LOG 2>> $LOG

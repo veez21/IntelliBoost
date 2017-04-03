@@ -11,6 +11,10 @@
 OUTFD=/proc/self/fd/$2;
 ZIPFILE="$3";
 DIR=$(dirname "$ZIPFILE");
+sys=$(find /dev/block/platform -name system)
+dat=$(find /dev/block/platform -name data)
+udat=$(find /dev/block/platform -name userdata)
+cac=$(find /dev/block/platform -name cache)
 
 # ui_print "<message>" ["<message 2>" ...]
 ui_print() {
