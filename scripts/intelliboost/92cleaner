@@ -1,17 +1,19 @@
 #!/system/bin/sh
 # Cleaner script
 
+#setvar
 LOG=/data/intelliboost/logs/cleaner.log
+box=/system/xbin/busybox
 
-mount -o remount,rw -t auto /
-mount -t rootfs -o remount,rw rootfs
-mount -o remount,rw -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
+mount -o remount,rw -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,rw rootfs >> $LOG 2>> $LOG
+mount -o remount,rw -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG
 
 # Loop to reset log values
-if [ -f \$LOG ]; then
-busybox rm -f \$LOG;
+if [ -rf \$LOG ]; then
+$box rm -f \$LOG;
 touch \$LOG;
 else
   touch \$LOG;
@@ -20,53 +22,76 @@ fi;
 #make clean
 start at:
 $( date +"%m-%d-%Y %H:%M:%S" )
-
+$box echo "Cleaning Up Junk Files..." >> $LOG
+clear
+sync
+$box echo "3" > /proc/sys/vm/drop_caches
+dc=/proc/sys/vm/drop_caches
+dc_v=`cat $dc`
+if [ "$dc_v" -gt 1 ]; then
+   $box echo "1" > /proc/sys/vm/drop_caches
+fi
 
 # cleaner
-busybox rm -f /data/anr/*.*
-busybox rm -f /data/cache/*.*
-busybox rm -f /data/log/*.*
-busybox rm -f /data/local/tmp/*.*
-busybox rm -f /data/mlog/*
-busybox rm -f /data/tombstones/*
-busybox rm -f /data/backup/pending/*
-busybox rm -f /data/system/dropbox/*
-chmod 700 /data/system/dropbox
-busybox rm -f /data/system/usagestats/*
-busybox chmod 700 /data/system/usagestats
+$box rm -rf /data/anr/*.* >> $LOG 2>> $LOG
+$box rm -rf /data/cache/*.* >> $LOG 2>> $LOG
+$box rm -rf /data/log/*.* >> $LOG 2>> $LOG
+$box rm -rf /data/local/tmp/*.* >> $LOG 2>> $LOG
+$box rm -rf /data/mlog/* >> $LOG 2>> $LOG
+$box rm -rf /data/tombstones/* >> $LOG 2>> $LOG
+$box rm -rf /data/backup/pending/* >> $LOG 2>> $LOG
+$box rm -rf /data/system/dropbox/* >> $LOG 2>> $LOG
+chmod 700 /data/system/dropbox >> $LOG 2>> $LOG
+$box rm -rf /data/system/usagestats/* >> $LOG 2>> $LOG
+$box chmod 700 /data/system/usagestats >> $LOG 2>> $LOG
+
+$box rm -rf /data/local/*.apk >> $LOG 2>> $LOG
+$box rm -rf /data/local/tmp/*.apk >> $LOG 2>> $LOG
+$box rm -rf /data/*.log >> $LOG 2>> $LOG
+$box rm -rf /data/log/*.log >> $LOG 2>> $LOG
+$box rm -rf /cache/* >> $LOG 2>> $LOG
+$box rm -rf /cache/recovery/* >> $LOG 2>> $LOG
+$box rm -rf /data/system/dropbox/*.txt >> $LOG 2>> $LOG
+$box rm -rf /data/backup/pending/*.tmp >> $LOG 2>> $LOG
+$box rm -rf /data/tombstones/* >> $LOG 2>> $LOG
+$box rm -rf /sdcard/LOST.DIR/* >> $LOG 2>> $LOG
 
 export sampling_rate=10000
 export up_threshold=80
 
-
-busybox echo "Successfully cleaned up junk!" | busybox tee -a $LOG;
+$box echo "Successfully cleaned up junk!" >> $LOG
 
 if [ -e /data/anr/*.* ]; then
-  busybox echo "-anr not cleaned" | busybox tee -a $LOG; else
-  busybox echo "-anr cleaned" | busybox tee -a $LOG
+  $box echo "-anr not cleaned" >> $LOG
+ else
+  $box echo "-anr cleaned" >> $LOG
 fi;
 if [ -e /data/local/tmp/*.* ]; then
-  busybox echo "-local/tmp not cleaned" | busybox tee -a $LOG; else
-  busybox echo "-local/tmp cleaned" | busybox tee -a $LOG
+  $box echo "-local/tmp not cleaned" >> $LOG
+ else
+  $box echo "-local/tmp cleaned" >> $LOG
 fi;
 if [ -e /data/cache/*.* ]; then
-  busybox echo "-cache not cleaned" | busybox tee -a $LOG; else
-  busybox echo "-cache cleaned" | busybox tee -a $LOG
+  $box echo "-cache not cleaned" >> $LOG
+ else
+  $box echo "-cache cleaned" >> $LOG
 fi;
 if [ -e /data/last_log/*.* ]; then
-  busybox echo "-log not cleaned" | busybox tee -a $LOG; else
-  busybox echo "-log cleaned" | busybox tee -a $LOG
+  $box echo "-log not cleaned" >> $LOG
+ else
+  $box echo "-log cleaned" >> $LOG
 fi;
 if [ -e /data/tombstones/*.* ]; then
-  busybox echo "-tombstones not cleaned" | busybox tee -a $LOG; else
-  busybox echo "-tombstones cleaned" | busybox tee -a $LOG
+  $box echo "-tombstones not cleaned" >> $LOG
+ else
+  $box echo "-tombstones cleaned" >> $LOG
 fi;
 
 # end
-busybox echo "cleaned at$( date +"%m-%d-%Y %H:%M:%S" )" | busybox tee -a $LOG;
+$box echo "cleaned at $( date +"%m-%d-%Y %H:%M:%S" )" >> $LOG
 
-mount -o remount,ro -t auto /
-mount -t rootfs -o remount,ro rootfs
-mount -o remount,ro -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
+mount -o remount,ro -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,ro rootfs >> $LOG 2>> $LOG
+mount -o remount,ro -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG

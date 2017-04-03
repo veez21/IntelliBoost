@@ -3,25 +3,26 @@
 # With verbose logging
 # TODO: Add more apps here
 
-mount -o remount,rw -t auto /
-mount -t rootfs -o remount,rw rootfs
-mount -o remount,rw -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
-
 # Define vars
 LOG=/data/intelliboost/logs/renice.log
+box=/system/xbin/busybox
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
-busybox rm -f \$LOG;
-touch \$LOG;
+$box rm -f \$LOG;
+$box touch \$LOG;
 else
-  touch \$LOG;
+  $box touch \$LOG;
 fi;
 
+mount -o remount,rw -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,rw rootfs >> $LOG 2>> $LOG
+mount -o remount,rw -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG
+
 #start daemon
-busybox nohup 69renicer &
+$box nohup 69renicer &
 echo $!
 
 (
@@ -29,42 +30,48 @@ while true
 do
 
 #Android's 'renice' binary is used here because it can only display the nice value of a process without changing.
-busybox echo "SystemUI (com.android.systemui): previous scheduling info: $(renice -g $(pgrep com.android.systemui))" >> $LOG
-busybox renice -10 $( pgrep com.android.systemui ) >> $LOG 2>> $LOG
-busybox echo "SystemUI new scheduling info: $(renice -g $(pgrep com.android.systemui))">> $LOG
+$box echo "SystemUI (com.android.systemui): previous scheduling info: $(renice -g $(pgrep com.android.systemui))" >> $LOG 
+$box renice -10 $( pgrep com.android.systemui ) >> $LOG 2>> $LOG
+$box echo "SystemUI new scheduling info: $(renice -g $(pgrep com.android.systemui))" >> $LOG
 
-busybox echo "Zygote (zygote): previous scheduling info: $(renice -g $(pgrep zygote))" >> $LOG
-busybox renice -8 $(pgrep zygote) >> $LOG 2>> $LOG
-busybox echo "Zygote new scheduling info: $(renice -g $(pgrep zygote))">> $LOG
+$box echo "Zygote (zygote): previous scheduling info: $(renice -g $(pgrep zygote))" >> $LOG
+$box renice -8 $(pgrep zygote) >> $LOG 2>> $LOG 
+$box echo "Zygote new scheduling info: $(renice -g $(pgrep zygote))">> $LOG
 
-busybox echo "SurfaceFlinger (surfaceflinger): previous scheduling info: $(renice -g $(pgrep surfaceflinger))" >> $LOG
-busybox renice -7 $(pgrep surfaceflinger) >> $LOG 2>> $LOG
-busybox echo "SurfaceFlinger new scheduling info: $(renice -g $(pgrep surfaceflinger ))">> $LOG
+$box echo "SurfaceFlinger (surfaceflinger): previous scheduling info: $(renice -g $(pgrep surfaceflinger))" >> $LOG
+$box renice -7 $(pgrep surfaceflinger) >> $LOG 2>> $LOG
+$box echo "SurfaceFlinger new scheduling info: $(renice -g $(pgrep surfaceflinger ))" >> $LOG
 
-busybox echo "System Server (system_server): previous scheduling info: $(renice -g $(pgrep system_server))" >> $LOG
-busybox renice -7 $(pgrep system_server) >> $LOG 2>> $LOG
-busybox echo "System Sever new scheduling info: $(renice -g $(pgrep system_server))">> $LOG
+$box echo "System Server (system_server): previous scheduling info: $(renice -g $(pgrep system_server))" >> $LOG
+$box renice -7 $(pgrep system_server) >> $LOG 2>> $LOG
+$box echo "System Sever new scheduling info: $(renice -g $(pgrep system_server))">> $LOG
 
 if pgrep com.google.android.gms
 then
-busybox echo "Google Play Services (com.google.android.gms): previous scheduling info: $(renice -g $(pgrep com.google.android.gms))" >> $LOG
-busybox renice 19 $(pgrep com.google.android.gms) >> $LOG 2>> $LOG
-busybox echo "Google Play Services new scheduling info: $(renice -g $(pgrep com.google.android.gms))">> $LOG
+$box echo "Google Play Services (com.google.android.gms): previous scheduling info: $(renice -g $(pgrep com.google.android.gms))" >> $LOG
+$box renice 19 $(pgrep com.google.android.gms) >> $LOG 2>> $LOG
+$box echo "Google Play Services new scheduling info: $(renice -g $(pgrep com.google.android.gms))">> $LOG
 fi
 
 if pgrep com.google.android.gsf
 then
-busybox echo "Google Services Framework (com.google.android.gsf): previous scheduling info: $(renice -g $(pgrep com.google.android.gsf))" >> $LOG
-busybox renice 19 $(pgrep com.google.android.gsf) >> $LOG 2>> $LOG
-busybox echo "Google Services Framework new scheduling info: $(renice -g $(pgrep com.google.android.gsf))">> $LOG
+$box echo "Google Services Framework (com.google.android.gsf): previous scheduling info: $(renice -g $(pgrep com.google.android.gsf))" >> $LOG
+$box renice 19 $(pgrep com.google.android.gsf) >> $LOG 2>> $LOG
+$box echo "Google Services Framework new scheduling info: $(renice -g $(pgrep com.google.android.gsf))">> $LOG
 fi
 
 if pgrep org.omnirom.omniswitch
 then
-busybox echo "OmniSwitch (org.omnirom.omniswitch): previous scheduling info: $(renice -g $(pgrep org.omnirom.omniswitch))" >> $LOG
-busybox renice -11 $(pgrep org.omnirom.omniswitch) >> $LOG 2>> $LOG
-busybox echo "OmniSwitch new scheduling info: $(renice -g $(pgrep org.omnirom.omniswitch))">> $LOG
+$box echo "OmniSwitch (org.omnirom.omniswitch): previous scheduling info: $(renice -g $(pgrep org.omnirom.omniswitch))" >> $LOG
+$box renice -11 $(pgrep org.omnirom.omniswitch) >> $LOG 2>> $LOG
+$box echo "OmniSwitch new scheduling info: $(renice -g $(pgrep org.omnirom.omniswitch))">> $LOG
 fi
 
-busybox echo "Apps reniced at $( date +"%m-%d-%Y %H:%M:%S" )" >> $LOG
+$box echo "Apps reniced at $( date +"%m-%d-%Y %H:%M:%S" )" >> $LOG
 done) &
+
+mount -o remount,ro -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,ro rootfs >> $LOG 2>> $LOG
+mount -o remount,ro -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG

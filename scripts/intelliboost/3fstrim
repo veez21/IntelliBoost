@@ -1,40 +1,41 @@
 #!/system/bin/sh
 # Fstrim on boot script
 
-mount -o remount,rw -t auto /
-mount -t rootfs -o remount,rw rootfs
-mount -o remount,rw -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
-
 # LOG
 LOG=/data/intelliboost/logs/fstrim.log
+box=/system/xbin/busybox
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
-busybox rm -f \$LOG;
+$box rm -f \$LOG;
 touch \$LOG;
 else
   touch \$LOG;
 fi;
 
-# Fstrim binary (busybox applet)
+mount -o remount,rw -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,rw rootfs >> $LOG 2>> $LOG
+mount -o remount,rw -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG
+
+# Fstrim binary ($box applet)
 # Current time is in enoch format
 
-	echo "================================================" | tee -a $LOG
-	echo " Fstrim Start at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG
-	echo "================================================" | tee -a $LOG
+	$box echo "================================================" >> $LOG
+	$box echo " Fstrim Start at $( date +"%m-%d-%Y %H:%M:%S" )" >> $LOG
+	$box echo "================================================" >> $LOG
 
-	busybox fstrim -v /system | tee -a $LOG;
-	busybox fstrim -v /data | tee -a $LOG;
-	busybox fstrim -v /cache | tee -a $LOG;
+	$box fstrim -v /system >> $LOG 2>> $LOG
+	$box fstrim -v /data >> $LOG 2>> $LOG
+	$box fstrim -v /cache >> $LOG 2>> $LOG
 
-	echo "================================================" | tee -a $LOG
-	echo " Fstrim Done at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG
-	echo "================================================" | tee -a $LOG
+	$box echo "================================================" >> $LOG
+	$box echo " Fstrim Done at $( date +"%m-%d-%Y %H:%M:%S" )" >> $LOG
+	$box echo "================================================" >> $LOG
 
-mount -o remount,ro -t auto /
-mount -t rootfs -o remount,ro rootfs
-mount -o remount,ro -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
+mount -o remount,ro -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,ro rootfs >> $LOG 2>> $LOG
+mount -o remount,ro -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG

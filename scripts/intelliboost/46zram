@@ -4,78 +4,79 @@
 # TODO: unsure whether zram is recomended, might kill battery for ram, therefore threshoild value is 5
 # more aggro will be 10 or 15 for threshold values
 
-mount -o remount,rw -t auto /
-mount -t rootfs -o remount,rw rootfs
-mount -o remount,rw -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
-
 # Define vars
 LOG=/data/intelliboost/logs/zram.log
 getprop=/system/etc/resourceIB/getprop
+box=/system/xbin/busybox
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
-busybox rm -f \$LOG;
-touch \$LOG;
+$box rm -f \$LOG;
+$box touch \$LOG;
 else
-  touch \$LOG;
+  $box touch \$LOG;
 fi;
+
+mount -o remount,rw -t auto / 2>> $LOG
+mount -t rootfs -o remount,rw rootfs 2>> $LOG
+mount -o remount,rw -t auto /system 2>> $LOG
+mount -o remount,rw /data 2>> $LOG
+mount -o remount,rw /cache 2>> $LOG
 
 if [ ! -e /data/intelliboost/memstat ]; then
-busybox touch /data/intelliboost/memstat 2>> $LOG
-busybox echo "0" >> /data/intelliboost/memstat 2>> $LOG
+$box touch /data/intelliboost/memstat 2>> $LOG
+$box echo "0" >> /data/intelliboost/memstat 2>> $LOG
 fi;
 
-busybox echo "Calculating ZRAM values..." | busybox tee -a \$LOG
+$box echo "Calculating ZRAM values..." >> $LOG
 
 #find swap devices
 if [ -e "/dev/block/zram0" ]; then
 ZRAMD="zram"
-busybox echo "zRAM device available as $ZRAMD" >> $LOG
+$box echo "zRAM device available as $ZRAMD" >> $LOG
 elif  [ -e "/dev/block/vnswap0" ]; then
 ZRAMD="vnswap"
-busybox echo "zRAM device available as $ZRAMD" >> $LOG
+$box echo "zRAM device available as $ZRAMD" >> $LOG
 else
-busybox echo "zRAM device unavailable" >> $LOG
+$box echo "zRAM device unavailable" >> $LOG
 exit 1
 fi
 
 #deactivate existing swap
 num="0"
 
-ZRAMN=$(busybox find /dev/block -name $ZRAMD* | busybox sort | tail -n 1 )
+ZRAMN=$($box find /dev/block -name $ZRAMD* | $box sort | tail -n 1 )
 ZRAMN=$((${ZRAMN#*$ZRAMD}+1))
-for z in $(busybox find /dev/block -name $ZRAMD* | busybox sort )
+for z in $($box find /dev/block -name $ZRAMD* | $box sort )
 do
-busybox echo "=> deactivating swap in $z" >> $LOG
+$box echo "=> deactivating swap in $z" >> $LOG
 if [ -e /system/bin/swapoff ]
 then
 /system/bin/swapoff $z >> $LOG 2>> $LOG 
 else
-busybox swapoff $z >> $LOG 2>> $LOG 
+$box swapoff $z >> $LOG 2>> $LOG 
 fi
 if [ -e "/sys/block/$ZRAMD$num/reset" ]
 then
-busybox echo "Resetting ZRAM values..." >> $LOG
-busybox echo 1 > /sys/block/$ZRAMD$num/reset 2>> $LOG
+$box echo "Resetting ZRAM values..." >> $LOG
+$box echo 1 > /sys/block/$ZRAMD$num/reset 2>> $LOG
 fi
 num=$(($num+1))
 done
 
 #calculate sizes
-RAM=$((`busybox awk '/MemTotal/{print $2}' /proc/meminfo`))
+RAM=$((`$box awk '/MemTotal/{print $2}' /proc/meminfo`))
 ZTHRESHOLD="5"
 ZRAM1=$(( $RAM * $ZTHRESHOLD / 100 ))
-busybox echo "val1 = $RAM * $ZTHRESHOLD / 100 = $ZRAM1 " >> $LOG
-val2=$(($(busybox awk '/MemFree/{print $2}' /proc/meminfo)))
+$box echo "val1 = $RAM * $ZTHRESHOLD / 100 = $ZRAM1 " >> $LOG
+val2=$(($($box awk '/MemFree/{print $2}' /proc/meminfo)))
 
-busybox echo "val2 = $val2" >> $LOG
+$box echo "val2 = $val2" >> $LOG
 val3=$(( ( $RAM - $val2 ) ))
-busybox echo $val3 >> /data/intelliboost/memstat 2>> $LOG
-busybox echo "val3 = $val3" >> $LOG
+$box echo $val3 >> /data/intelliboost/memstat 2>> $LOG
+$box echo "val3 = $val3" >> $LOG
 
-MEMSTATS=($( busybox cat /system/data/intelliboost/memstat ))
+MEMSTATS=($( $box cat /system/data/intelliboost/memstat ))
 for stat in ${!MEMSTATS[@]}
 do
 mem=$(( $mem+${MEMSTATS[$stat]} ))
@@ -85,39 +86,39 @@ ADDMEM=$((($MEMSTATS) * $ZTHRESHOLD / 10))
 ZRAM=$((($ZRAM1+$ADDMEM)*26/100 * 1024))
 
 #change size
-busybox echo "You have $(($RAM)) megabytes of system RAM." >> $LOG
+$box echo "You have $(($RAM)) megabytes of system RAM." >> $LOG
 
-busybox echo "Setting zRAM values dynamically..." > $LOG
-busybox echo "=> zRAM Size: $ZRAM bytes ($(($ZRAM / 1024 / 1024)) megabytes)" >> $LOG
+$box echo "Setting zRAM values dynamically..." > $LOG
+$box echo "=> zRAM Size: $ZRAM bytes ($(($ZRAM / 1024 / 1024)) megabytes)" >> $LOG
 num=0
-for z in $(busybox find /dev/block -name $ZRAMD* | busybox sort )
+for z in $($box find /dev/block -name $ZRAMD* | $box sort )
 do
-busybox echo $(( $ZRAM / $ZRAMN )) > /sys/block/$ZRAMD$num/disksize 2>> $LOG
+$box echo $(( $ZRAM / $ZRAMN )) > /sys/block/$ZRAMD$num/disksize 2>> $LOG
 num=$(($num+1))
 done
 
 #mkswap
 num=0
-for z in $(busybox find /dev/block -name $ZRAMD* | busybox sort )
+for z in $($box find /dev/block -name $ZRAMD* | $box sort )
 do
-busybox echo "==> Preparing swapspace in $z, $num of $ZRAMN" >> $LOG
-busybox mkswap $z >> $LOG 2>> $LOG
+$box echo "==> Preparing swapspace in $z, $num of $ZRAMN" >> $LOG
+$box mkswap $z >> $LOG 2>> $LOG
 num=$(($num+1))
 done
 
 #swapon
 num=0
-for z in $(busybox find /dev/block -name $ZRAMD* | busybox sort )
+for z in $($box find /dev/block -name $ZRAMD* | $box sort )
 do
-busybox echo "==> Swapping in swapspace in $z, $num of $ZRAMN" >> $LOG
-busybox swapon $z -p 256 >> $LOG 2>> $LOG
+$box echo "==> Swapping in swapspace in $z, $num of $ZRAMN" >> $LOG
+$box swapon $z -p 256 >> $LOG 2>> $LOG
 num=$(($num+1))
 done
 
 #vm parameters
 swappiness=$(( ($ZRAM / 1024 / 1024) * 100 / ($RAM / 1024) + 50 ))
-busybox sysctl -w vm.swappiness=$swappiness >> $LOG 2>> $LOG
-busybox sysctl -w vm.vfs_cache_pressure=10 >> $LOG 2>> $LOG
+$box sysctl -w vm.swappiness=$swappiness >> $LOG 2>> $LOG
+$box sysctl -w vm.vfs_cache_pressure=10 >> $LOG 2>> $LOG
 
 #end
-busybox echo "zRAM values are properly set dynamically :)" >> $LOG
+$box echo "zRAM values are properly set dynamically :)" >> $LOG

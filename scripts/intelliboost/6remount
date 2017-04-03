@@ -1,23 +1,24 @@
 #!/system/bin/sh
 # Mount related stuff
-
 # NOTE: Not applicable for legacy devices due to no /dev/block/platform folder
 
-mount -o remount,rw -t auto /
-mount -t rootfs -o remount,rw rootfs
-mount -o remount,rw -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
-
+#setvar
 LOG=/data/intelliboost/logs/mount.log
+box=/system/xbin/busybox
 
 # Loop to reset log values
-if [ -f \$LOG ]; then
-busybox rm -f \$LOG;
-touch \$LOG;
+if [ -f \$LOG ] then
+$box rm -f \$LOG
+touch \$LOG
 else
-  touch \$LOG;
-fi;
+  touch \$LOG
+fi
+
+mount -o remount,rw -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,rw rootfs >> $LOG 2>> $LOG
+mount -o remount,rw -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG
 
 # Set Variables
 sys=$(find /dev/block/platform -name system)
@@ -26,44 +27,45 @@ udat=$(find /dev/block/platform -name userdata)
 cac=$(find /dev/block/platform -name cache)
 
 # Remount each file system with noatime and nodiratime flags to save battery and CPU cycles
-busybox echo "$( date +"%m-%d-%Y %H:%M:%S" )  Applying Mount-Related Tweaks..." | tee -a $LOG;
-busybox echo "Remount all file system with noatime and nodiratime flags to save battery and CPU cycles" >> $LOG
-mount -o remount,noatime,nodelalloc,nodiratime,commit=900,noatime,noauto_da_alloc,barrier=0 $sys
-mount -o remount,noatime,nodelalloc,nodiratime,commit=900,noauto_da_alloc,barrier=0 $dat
-mount -o remount,noatime,nodelalloc,nodiratime,commit=900,noauto_da_alloc,barrier=0 $udat
-mount -o remount,noatime,nodelalloc,nodiratime,commit=900,noauto_da_alloc,barrier=0 $cac
+$box echo "$( date +"%m-%d-%Y %H:%M:%S" )  Applying Mount-Related Tweaks..." >> $LOG
+$box echo "Remount all file system with noatime and nodiratime flags to save battery and CPU cycles" >> $LOG
+mount -o remount,noatime,nodelalloc,nodiratime,commit=900,noatime,noauto_da_alloc,barrier=0 $sys >> $LOG 2>> $LOG
+mount -o remount,noatime,nodelalloc,nodiratime,commit=900,noauto_da_alloc,barrier=0 $dat >> $LOG 2>> $LOG
+mount -o remount,noatime,nodelalloc,nodiratime,commit=900,noauto_da_alloc,barrier=0 $udat >> $LOG 2>> $LOG
+mount -o remount,noatime,nodelalloc,nodiratime,commit=900,noauto_da_alloc,barrier=0 $cac >> $LOG 2>> $LOG
 
 #kernel
-busybox echo "Applying Mount-Related tweaks in kernel" >> $LOG
-busybox sysctl -w kernel.sched_features=15834233;
-busybox sysctl -w kernel.msgmni=2048;
-busybox sysctl -w kernel.msgmax=64000;
-busybox sysctl -w kernel.shmmax=268435500;
-busybox sysctl -w kernel.sem=500,512000,64,2048;
-busybox sysctl -w kernel.hung_task_timeout_secs=0;
-busybox sysctl -w kernel.sched_latency_ns=5000000; 
-busybox sysctl -w kernel.sched_compat_yield=1;
-busybox sysctl -w kernel.sched_shares_ratelimit=256000;
-busybox sysctl -w kernel.sched_child_runs_first=0;
-busybox sysctl -w kernel.threads-max=10000;
+$box echo "Applying Mount-Related tweaks in kernel" >> $LOG
+$box sysctl -w kernel.sched_features=15834233 >> $LOG 2>> $LOG
+$box sysctl -w kernel.msgmni=2048 >> $LOG 2>> $LOG
+$box sysctl -w kernel.msgmax=64000 >> $LOG 2>> $LOG
+$box sysctl -w kernel.shmmax=268435500 >> $LOG 2>> $LOG
+$box sysctl -w kernel.sem=500,512000,64,2048 >> $LOG 2>> $LOG
+$box sysctl -w kernel.hung_task_timeout_secs=0 >> $LOG 2>> $LOG
+$box sysctl -w kernel.sched_latency_ns=5000000 >> $LOG 2>> $LOG
+$box sysctl -w kernel.sched_compat_yield=1 >> $LOG 2>> $LOG
+$box sysctl -w kernel.sched_shares_ratelimit=256000 >> $LOG 2>> $LOG
+$box sysctl -w kernel.sched_child_runs_first=0 >> $LOG 2>> $LOG
+$box sysctl -w kernel.threads-max=10000 >> $LOG 2>> $LOG
 
 # Gets rid of lags in partions formatted using EXT4
-busybox echo "$( date +"%m-%d-%Y %H:%M:%S" )  Fixing lag on partions formatted as ext4" | tee -a $LOG;
-busybox echo "$( date +"%m-%d-%Y %H:%M:%S" )  Mildly increases smoothness and reduces laggggggs" | tee -a $LOG;
+$box echo "$( date +"%m-%d-%Y %H:%M:%S" )  Fixing lag on partions formatted as ext4" >> $LOG
+$box echo " Mildly increases smoothness and reduces laggggggs" >> $LOG
 
 if ( mount | grep -w ext4 ) then
-	busybox echo "EXT4 Partition Found!" | tee -a $LOG;
-	busybox echo "Remounting..." | tee -a $LOG;
-	mount -o noatime,remount,rw,discard,barrier=0,commit=60,noauto_da_alloc,delalloc /cache /cache;
-	mount -o noatime,remount,rw,discard,barrier=0,commit=60,noauto_da_alloc,delalloc /data /data;
-	busybox echo "$( date +"%m-%d-%Y %H:%M:%S" ) Successfully remounted and fix mild lags" | tee -a $LOG;
+	$box echo "EXT4 Partition Found!" >> $LOG
+	$box echo "Remounting..." >> $LOG
+	mount -o noatime,remount,rw,discard,barrier=0,commit=60,noauto_da_alloc,delalloc /system /system >> $LOG 2>> $LOG
+    mount -o noatime,remount,rw,discard,barrier=0,commit=60,noauto_da_alloc,delalloc /data /data >> $LOG 2>> $LOG
+	mount -o noatime,remount,rw,discard,barrier=0,commit=60,noauto_da_alloc,delalloc /cache /cache >> $LOG 2>> $LOG
+	$box echo "$( date +"%m-%d-%Y %H:%M:%S" ) Successfully remounted and fix mild lags" >> $LOG
 else
-	busybox echo "$( date +"%m-%d-%Y %H:%M:%S" )EXT4 Partition Not Found!" | tee -a $LOG;
-	busybox echo "@_@ Did you F2FS?" | tee -a $LOG;
-fi;
+	$box echo "$( date +"%m-%d-%Y %H:%M:%S" )EXT4 Partition Not Found!" >> $LOG
+	$box echo "@_@ Did you F2FS?" >> $LOG
+fi
 
-mount -o remount,ro -t auto /
-mount -t rootfs -o remount,ro rootfs
-mount -o remount,ro -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
+mount -o remount,ro -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,ro rootfs >> $LOG 2>> $LOG
+mount -o remount,ro -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG

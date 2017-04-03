@@ -2,50 +2,51 @@
 # light light seeder
 # NOTE: values set might be too aggro, make sure sugar is kept a safe distance...
 
-mount -o remount,rw -t auto /
-mount -t rootfs -o remount,rw rootfs
-mount -o remount,rw -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
-
 LOG=/data/intelliboost/logs/seeder.log
+box=/system/xbin/busybox
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
-busybox rm -f \$LOG;
-touch \$LOG;
+$box rm -f \$LOG;
+$box touch \$LOG;
 else
-  touch \$LOG;
+  $box touch \$LOG;
 fi;
 
+mount -o remount,rw -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,rw rootfs >> $LOG 2>> $LOG
+mount -o remount,rw -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG
+
 if [ pgrep qrngd > /dev/null ]; then
- busybox echo "qrngd already running! Seeder will not be started!" >> $LOG
+ $box echo "qrngd already running! Seeder will not be started!" >> $LOG
   exit 1
 fi
 
 if [ -e /system/bin/qrngd -o -e /system/xbin/qrngd ]; then
- busybox echo "qrngd found in /system! Seeder will not be started!" >> $LOG
+ $box echo "qrngd found in /system! Seeder will not be started!" >> $LOG
   exit 1
 fi
 
-rngd -t 2 -T 1 -s 256 --fill-watermark=80%
-sleep 2busybox
-echo -8 > /proc/$(pgrep rngd)/oom_adj
-renice 5 `pidof rngd`
+rngd -t 2 -T 1 -s 256 --fill-watermark=80% >> $LOG 2>> $LOG
+$box sleep 2
+echo -8 > /proc/$(pgrep rngd)/oom_adj >> $LOG 2>> $LOG
+renice 5 `pidof rngd` >> $LOG 2>> $LOG
 
-busybox echo "Activating battery saving seeder profile.." | busybox tee -a \$LOG
-busybox sysctl -e -w kernel.random.read_wakeup_threshold=128
-busybox sysctl -e -w kernel.random.write_wakeup_threshold=256
+$box echo "Activating battery saving seeder profile.." >> $LOG
+$box sysctl -e -w kernel.random.read_wakeup_threshold=128 >> $LOG 2>> $LOG
+$box sysctl -e -w kernel.random.write_wakeup_threshold=256 >> $LOG 2>> $LOG
 
-busybox sleep 1
+$box sleep 1
 if [ grep "128" proc/sys/kernel/random/read_wakeup_threshold ]; then
-busybox echo "Light seeder profile is activated.." | busybox tee -a \$LOG
+$box echo "Light seeder profile is activated.." >> $LOG
 else
-busybox echo "Light seeder profile is not activated.." | busybox tee -a \$LOG
+$box echo "Light seeder profile is not activated.." >> $LOG
 fi
 
-mount -o remount,ro -t auto /
-mount -t rootfs -o remount,ro rootfs
-mount -o remount,ro -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
+mount -o remount,ro -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,ro rootfs >> $LOG 2>> $LOG
+mount -o remount,ro -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG

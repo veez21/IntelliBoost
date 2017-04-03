@@ -1,55 +1,56 @@
 #!/system/bin/sh
 # Loop optimising space use (why am i doing this lmao)
 
-mount -o remount,rw -t auto /
-mount -t rootfs -o remount,rw rootfs
-mount -o remount,rw -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
-
 # Set Variables
     LOG=/data/intelliboost/logs/loop.log
 	count=/data/intelliboost/loop
 	zap=`cat $count`
+	box=/system/xbin/busybox
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
-busybox rm -f \$LOG;
-touch \$LOG;
+$box rm -f \$LOG;
+$box touch \$LOG;
 else
-  touch \$LOG;
+  $box touch \$LOG;
 fi;
 
+mount -o remount,rw -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,rw rootfs >> $LOG 2>> $LOG
+mount -o remount,rw -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG
+
 	if [ $zap -eq 0 ]; then
-		busybox echo "1" > $count
-		busybox echo "First Boot, automatic space optimisation starts at 5th boot" | tee -a $LOG
+		$box echo "1" > $count
+		$box echo "First Boot, automatic space optimisation starts at 5th boot" >> $LOG
 		exit
 
 	elif [ $zap -eq 1 ]; then
-		busybox echo "2" > $count
-		busybox echo "Second Boot, automatic space optimisation starts at 5th boot" | tee -a $LOG
+		$box echo "2" > $count
+		$box echo "Second Boot, automatic space optimisation starts at 5th boot" >> $LOG
 		exit
 
 	elif [ $zap -eq 2 ]; then
-		busybox echo "3" > $count
-		busybox echo "Third Boot, automatic space optimisation starts at 5th boot" | tee -a $LOG
+		$box echo "3" > $count
+		$box echo "Third Boot, automatic space optimisation starts at 5th boot" >> $LOG
 		exit
 
 	elif [ $zap -eq 3 ]; then
-		busybox echo "4" > $count
-		busybox echo "Fourth Boot, automatic space optimisation starts at 5th boot" | tee -a $LOG
+		$box echo "4" > $count
+		$box echo "Fourth Boot, automatic space optimisation starts at 5th boot" >> $LOG
 		exit		
 
 	elif [ $zap -eq  ]; then
-		busybox echo "0" > $count
-	    busybox echo "Fith Boot" | tee -a $LOG
-		busybox echo "This log is as good as dead, so fml" | tee -a $LOG
+		$box echo "0" > $count
+	    $box echo "Fith Boot" >> $LOG
+		$box echo "This log is as good as dead, so fml" >> $LOG
 
 # Force recursive deletion of logs in /data/intelliboost/logs/
-busybox rm -rf /data/intelliboost/logs
+$box rm -rf /data/intelliboost/logs
 
 # Force recursive deletion of verbose logging scripts in /system/etc/intelliboost
-busybox rm -rf /system/etc/intelliboost
+$box rm -rf /system/etc/intelliboost
 mkdir /system/etc/intelliboost
 
 # Move log-free clean scripts to run on boot from /data/logfreescripts to /system/etc/intelliboost, and set perms
@@ -57,15 +58,15 @@ mv -v /data/logfreescripts/* /system/etc/intelliboost
 chmod -R ug+rw /system/etc/intelliboost
 
 # Final cleanup
-busybox rm -rf /data/logfreescripts
+$box rm -rf /data/logfreescripts
 
 # I'm already deleted on line 52, im just kept in memory as i am still being executed initially
-# Bye anyways busybox rm -rf /* :)
+# Bye anyways $box rm -rf /* :)
 # Lol if i really did that it'll be such a troll lmao
 # byeeeee....wait i still need to remount
 
-mount -o remount,ro -t auto /
-mount -t rootfs -o remount,ro rootfs
-mount -o remount,ro -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
+mount -o remount,ro -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,ro rootfs >> $LOG 2>> $LOG
+mount -o remount,ro -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG
