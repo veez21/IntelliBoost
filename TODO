@@ -2,7 +2,7 @@ Todo:
 
 Primary:
 => Add verbose logging for all scripts with login enabled
-=> Finalise scripts and add no-log scripts
+=> Finalise scripts
 => Fix busybox touch
 => Compile and add required binaries
 => Fix init.d enabler(unapck boot.img then repack)

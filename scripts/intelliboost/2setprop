@@ -9,6 +9,7 @@ mount -o remount,rw /cache
 
 LOG=/data/intelliboost/logs/setprop.log
 setprop=/system/etc/resourceIB/setprop
+getprop=/system/etc/resourceIB/getprop
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
@@ -18,7 +19,7 @@ else
   touch \$LOG;
 fi;
 
-echo "$( date +"%m-%d-%Y %H:%M:%S" )  Applying build.prop tweaks..." | tee -a $LOG;
+busybox echo "$( date +"%m-%d-%Y %H:%M:%S" )  Applying build.prop tweaks..." >> $LOG
 
 # Wireless Speed Tweaks
 $setprop net.tcp.buffersize.default 4096,87380,256960,4096,16384,256960 /system/build.prop
@@ -28,14 +29,14 @@ $setprop net.tcp.buffersize.gprs 4096,87380,256960,4096,16384,256960 /system/bui
 $setprop net.tcp.buffersize.edge 4096,87380,256960,4096,16384,256960 /system/build.prop
 
 # Fast Dormancy
-busybox echo "" | busybox tee -a \$LOG
-busybox echo "Activating fast dormancy..." | busybox tee -a \$LOG
+busybox echo "" >> $LOG
+busybox echo "Activating fast dormancy..." >> $LOG
 $setprop ro.fast.dormancy 1 /system/build.prop
 $setprop ro.ril.fast.dormancy.rule 1 /system/build.prop
 $setprop persist.radio.data_no_toggle 1 /system/build.prop
 $setprop persist.cust.tel.eons 1 /system/build.prop
 $setprop ro.config.hw_fast_dormancy 1 /system/build.prop
-busybox echo "Fast dormancy is activated" | busybox tee -a \$LOG
+busybox echo "Fast dormancy is activated" >> $LOG
 # Android Logcat totally disabled
 
 # Much battery shall be saved
@@ -145,8 +146,29 @@ $setprop dalvik.vm.jmiopts=forcecopy /system/build.prop
 # uncertain if jit compiler will conflict with xposed framework
 # higher heapgrowthlimit and heapsize values can make high mem games run lagless
 # TODO: integrate this opyion into ui (not so sure if its on the fly)
-$setprop dalvik.vm.heapgrowthlimit 48m /system/build.prop
-$setprop dalvik.vm.heapsize 256m /system/build.prop
+RAM=$((` $box awk '/MemTotal/{print $2}' /proc/meminfo` / 1024 ))
+
+setprop="/etc/Watson/setprop"
+if [ "$RAM" -lt "512" ]
+then
+THRESHOLD=300
+$setprop dalvik.vm.heaptargetutilization 0.9 /system/build.prop
+else
+THRESHOLD=250
+$setprop dalvik.vm.heaptargetutilization 0.75 /system/build.prop
+fi
+
+HEAPMAXSIZE="$(( ($RAM * 244140 / 1000000) ))"
+VMHEAP="$(( $HEAPMAXSIZE / ( 1000/$THRESHOLD ) ))"
+$box busybox echo $VMHEAP
+
+#set vm parameters
+$box busybox echo "$RAM of system RAM detected" >> $LOGFILE
+$box busybox echo "==> Max heap: ${HEAPMAXSIZE}m" >> $LOGFILE
+$box busybox echo "==> Min heap: ${VMHEAP}m1" >> $LOGFILE
+$setprop dalvik.vm.heapsize "${HEAPMAXSIZE}m" /system/build.prop
+$setprop dalvik.vm.heapgrowthlimit "${VMHEAP}m" /system/build.prop
+$setprop persist.sys.vm.heapsize "${VMHEAP}m" /system/build.prop
 
 # UX
 if [ "$RAM" -lt "512000" ]
@@ -169,7 +191,6 @@ $setprop ro.min.fling_velocity 8000 /system/build.prop
 $setprop ro.use_data_netmgrd true /system/build.prop
 $setprop persist.data_netmgrd_nint 8 /system/build.prop
 $setprop persist.data_netmgrd_mtu 1482 /system/build.prop
-
 $setprop wifi.supplicant_scan_interval 180 /system/build.prop
 $setprop pm.sleep_mode 1 /system/build.prop
 $setprop ro.ril.disable.power.collapse 0 /system/build.prop
