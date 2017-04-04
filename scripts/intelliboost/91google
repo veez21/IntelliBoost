@@ -34,6 +34,7 @@ su -c pm enable com.google.android.gsf/.update.SystemUpdateService\$Receiver >> 
 su -c pm enable com.google.android.gsf/.update.SystemUpdateService\$SecretCodeReceiver >> $LOG 2>> $LOG
 
 $box sleep 20
+
 $box echo "Killing Gapps battery draining processes..." >> $LOG
 $box killall -9 com.google.android.gms >> $LOG 2>> $LOG
 $box killall -9 com.google.android.gms.persistent >> $LOG 2>> $LOG
@@ -41,11 +42,10 @@ $box killall -9 com.google.process.gapps >> $LOG 2>> $LOG
 $box killall -9 com.google.android.gsf >> $LOG 2>> $LOG
 $box killall -9 com.google.android.gsf.persistent >> $LOG 2>> $LOG
 $box echo "They died lol :)" >> $LOG
-
 $box echo "Google Play Services Drain fix complete!" >> $LOG
 
-mount -o remount,ro -t auto /
-mount -t rootfs -o remount,ro rootfs
-mount -o remount,ro -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
+mount -o remount,ro -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,ro rootfs >> $LOG 2>> $LOG
+mount -o remount,ro -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG

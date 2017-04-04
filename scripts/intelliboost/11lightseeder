@@ -39,6 +39,7 @@ $box sysctl -e -w kernel.random.read_wakeup_threshold=128 >> $LOG 2>> $LOG
 $box sysctl -e -w kernel.random.write_wakeup_threshold=256 >> $LOG 2>> $LOG
 
 $box sleep 1
+
 if [ grep "128" proc/sys/kernel/random/read_wakeup_threshold ]; then
 $box echo "Light seeder profile is activated.." >> $LOG
 else

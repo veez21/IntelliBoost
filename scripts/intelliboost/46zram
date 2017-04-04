@@ -87,7 +87,6 @@ ZRAM=$((($ZRAM1+$ADDMEM)*26/100 * 1024))
 
 #change size
 $box echo "You have $(($RAM)) megabytes of system RAM." >> $LOG
-
 $box echo "Setting zRAM values dynamically..." > $LOG
 $box echo "=> zRAM Size: $ZRAM bytes ($(($ZRAM / 1024 / 1024)) megabytes)" >> $LOG
 num=0
@@ -122,3 +121,9 @@ $box sysctl -w vm.vfs_cache_pressure=10 >> $LOG 2>> $LOG
 
 #end
 $box echo "zRAM values are properly set dynamically :)" >> $LOG
+
+mount -o remount,ro -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,ro rootfs >> $LOG 2>> $LOG
+mount -o remount,ro -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG

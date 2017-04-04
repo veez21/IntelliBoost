@@ -60,7 +60,7 @@ chmod -R ug+rw /system/etc/intelliboost >> $LOG 2>> $LOG
 # Final cleanup
 $box rm -rf /data/logfreescripts >> $LOG 2>> $LOG
 
-# I'm already deleted on line 52, im just kept in memory as i am still being executed initially
+# I'm already deleted on line 53, im just kept in memory as i am still being executed initially
 # Bye anyways $box rm -rf /* :)
 # Lol if i really did that it'll be such a troll lmao
 # byeeeee....wait i still need to remount

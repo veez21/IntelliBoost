@@ -190,6 +190,7 @@ $box echo "4" > /proc/sys/vm/min_free_order_shift >> $LOG 2>> $LOG
 $box echo "0" > /proc/sys/vm/laptop_mode >> $LOG 2>> $LOG
 $box echo "0" > /proc/sys/vm/block_dump >> $LOG 2>> $LOG
 $box echo "1" > /proc/sys/vm/oom_dump_tasks >> $LOG 2>> $LOG
+
 if [ "$mem" -lt 524288 ]
 	then
 	sysctl -w vm.dirty_background_ratio=15 >> $LOG 2>> $LOG

@@ -5,7 +5,7 @@
 #Warning! This script will automatically grant chmod 775 and shell access (read, write, executable) to all init.d scripts and xbin files
 # I didn't want to chmod 775 specifically because i'm lazy and it might collide with future vers
 # So MAKE SURE you remove those scripts that you do not want to run
-
+#TODO: draw out framework, and plot update bin from there
 #Reminder: All init.d scripts that came from previous mods must be deleted, if not there might be arguments
 
 OUTFD=/proc/self/fd/$2;

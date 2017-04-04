@@ -1,6 +1,7 @@
 Todo:
 
 Primary:
+=> busybox nmeter
 => Finalise scripts
 => Redo log-free scripts
 => Compile and add required binaries
@@ -16,7 +17,10 @@ Secondary:
 => Create profiles in UI (Gaming, performance, etc) [Ensure that it's on-the-fly]
 => Add setup one time script, it rm -f after redirecting to control panel
 => Execution of scripts on-the-fly using Crossbreeder
+=> Add logcat option in control panel
 => Add a few scripts to have UI in terminal shell(reverse some extreme powersaving tweaks)
+=> Enable google assistant7.0 and above only(reboot to see changes), add a force option to trick device model to Pixel 
+=> install stuffin (folder) as system app
 => Add kernel tweaks
 => Add governer tweaks (merge govtuner sources, using UI)
 => GPS Config selection in UI

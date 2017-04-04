@@ -1,6 +1,8 @@
 #!/system/bin/sh
 # Build.prop Tweaks (one time)
+# TODO: Fix buffersize values
 
+# setvar
 LOG=/data/intelliboost/logs/setprop.log
 setprop=/system/etc/resourceIB/setprop
 getprop=/system/etc/resourceIB/getprop
@@ -41,21 +43,17 @@ $setprop persist.radio.data_no_toggle 1 /system/build.prop >> $LOG 2>> $LOG
 $setprop persist.cust.tel.eons 1 /system/build.prop >> $LOG 2>> $LOG
 $setprop ro.config.hw_fast_dormancy 1 /system/build.prop >> $LOG 2>> $LOG
 $box echo "Fast dormancy is activated" >> $LOG
-# Android Logcat totally disabled
 
+# Android Logcat totally disabled
 # Much battery shall be saved
-$setprop logcat.live disable /system/build.prop >> $LOG 2>> $LOG
-$box rm -f /dev/log/main
-$setprop debugtool.anrhistory 0 /system/build.prop >> $LOG 2>> $LOG
-$setprop profiler.debugmonitor false /system/build.prop >> $LOG 2>> $LOG
-$setprop profiler.launch false /system/build.prop >> $LOG 2>> $LOG
-$setprop profiler.hung.dumpdobugreport false /system/build.prop >> $LOG 2>> $LOG
+#$setprop logcat.live disable /system/build.prop >> $LOG 2>> $LOG
+#$box rm -f /dev/log/main
+#$setprop debugtool.anrhistory 0 /system/build.prop >> $LOG 2>> $LOG
+#$setprop profiler.debugmonitor false /system/build.prop >> $LOG 2>> $LOG
+#$setprop profiler.launch false /system/build.prop >> $LOG 2>> $LOG
+#$setprop profiler.hung.dumpdobugreport false /system/build.prop >> $LOG 2>> $LOG
 $setprop persist.android.strictmode 0 /system/build.prop >> $LOG 2>> $LOG
 
-#Graphics Tweaks and improvments
-$setprop debug.performance.tuning 1 /system/build.prop >> $LOG 2>> $LOG
-$setprop video.accelerate.hw 1 /system/build.prop >> $LOG 2>> $LOG
-$setprop persist.sys.use_dithering 1 /system/build.prop >> $LOG 2>> $LOG
 # Google DNS
 # Security and stuff
 # No effect on battery
