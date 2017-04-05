@@ -1,16 +1,15 @@
 Todo:
 
 Primary:
-=> busybox nmeter
-=> Finalise scripts
 => Redo log-free scripts
-=> Compile and add required binaries
+=> Fix zipalign, rgnd binary arch compatibility
 => Fix init.d enabler(unapck boot.img then repack)
 => fix update binary
 => fix backup in /common
 
 Secondary:
 => Lmk to be dynamic
+=> touchup scripts
 => Fix kernel tweaks on cluster based SOCs (ARM/MediaTech big.LITTLE)
 => Add x86 support
 => Add control panel
