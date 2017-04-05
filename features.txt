@@ -1,0 +1,43 @@
+Features:
+Ltest file binaries (sqlite3)
+arm, armx64 and x86 support
+busybox 1.26.2 (sterricson)
+latest ad block (based on adaway <date>)
+Fstrim on boot
+Zipalign on boot
+Cleans Junk files and cache on boot(Sqlite3 Vaccum)
+Fast Charge
+Google Play services drain fix
+dynamic lmk
+oom killer
+boost network speeds
+support for ipv4, ipv6
+gogle dns
+assertive display (qualcomm)
+Make sure to give a discription of everything in second post
+====
+disable debugging and logging
+Performance profile
+setenforce 0 or 1
+disable fastcharge failsafe(grep "2"from ffc)
+
+
+todo: 
+add init.d enabler
+most battery saving lmk values
+this script contains <content>
+resolve busybox
+look into rngd(seeder)
+for eveyscript adfd copytight and apache
+add more log comments
+merge govtuner (take battery saver lines
+merge skynet
+merge watson
+#reload log
+if [ -f \$LOG ]; then
+busybox rm \$LOG;
+fi;
+add busybox behind echo and tee <log>
+add log file names
+photoshop profilr
+###Awaiting confirmation
