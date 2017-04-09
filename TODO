@@ -1,6 +1,7 @@
 Todo:
 
 Primary:
+=> setprop
 => Redo log-free scripts
 => Fix zipalign, rgnd binary arch compatibility
 => Fix init.d enabler(unapck boot.img then repack)

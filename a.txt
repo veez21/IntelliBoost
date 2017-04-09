@@ -1,7 +1,5 @@
 Features:
-Ltest file binaries (sqlite3)
-arm, armx64 and x86 support
-busybox 1.26.2 (sterricson)
+busybox 1.26.2
 latest ad block (based on adaway <date>)
 Fstrim on boot
 Zipalign on boot
@@ -11,15 +9,11 @@ Google Play services drain fix
 dynamic lmk
 oom killer
 boost network speeds
-support for ipv4, ipv6
-gogle dns
 assertive display (qualcomm)
-Make sure to give a discription of everything in second post
 ====
-disable debugging and logging
+Adblock
 Performance profile
-setenforce 0 or 1
-disable fastcharge failsafe(grep "2"from ffc)
+
 
 
 todo: 
@@ -39,8 +33,17 @@ busybox rm \$LOG;
 fi;
 add busybox behind echo and tee <log>
 add log file names
-photoshop profilr
+ui option:
+setenforce 0 or 1
+google dns
+move setprop script to .sh
 ###Awaiting confirmation
-
-Peeps to thanks
-Mert,lucas, in collaboration with sonickles9
+debugging
+logging
+kernel panic
+Disable Sleepers optimisation
+ro.config.hw_fast_dormancy=1
+ro.config.hw_quickpoweron=true
+purgable assets
+Support for ipv4 and ipv6.
+persist.cust.tel.eons=1

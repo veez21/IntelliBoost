@@ -1,6 +1,6 @@
 #!/system/bin/sh
 # Build.prop Tweaks (one time)
-# TODO: Fix buffersize values
+# TODO: Fix buffersize values, one time so remove syscl and other commands that are not fixed and make this a .sh
 
 # setvar
 LOG=/data/intelliboost/logs/setprop.log
