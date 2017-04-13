@@ -22,7 +22,7 @@ This mod is full of shell scripts that can be flashed in recovery.
 
 ## Features
 List will be coming up soon!
-Logs are in /data/intelliboost (/data = Internal Storage, unless you're the chosen one)
+Logs are in /data/intelliboost/logs (/data is not the "Internal storage" of most file explorers! Youn need to go to the root partion, then data)
 
 Profiles (can be activated through UI)
 - Battery profile => will not be made. This is beacause the multitasking profile is already biased to battery, and further degaration in performace will only cause much much more lags and a overall instability, and a unenjoyable use of your phone
