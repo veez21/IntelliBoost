@@ -6,7 +6,7 @@
 
 # Define vars
 LOG=/data/intelliboost/logs/zram.log
-getprop=/system/etc/resourceIB/getprop
+getprop=/data/resourceIB/getprop
 box=/system/xbin/busybox
 
 # Loop to reset log values

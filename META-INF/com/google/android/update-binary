@@ -1,6 +1,6 @@
 #!/sbin/sh
 # Intelliboost update script
-#Written in bash
+# Written in bash
 
 #Warning! This script will automatically grant chmod 775 and shell access (read, write, executable) to all init.d scripts and xbin files
 # I didn't want to chmod 775 specifically because i'm lazy and it might collide with future vers

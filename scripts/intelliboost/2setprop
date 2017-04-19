@@ -4,9 +4,8 @@
 
 # setvar
 LOG=/data/intelliboost/logs/setprop.log
-setprop=/system/etc/resourceIB/setprop
-getprop=/system/etc/resourceIB/getprop
-buildprop=/system/build.prop >> $LOG 2>> $LOG
+setprop=/data/resourceIB/setprop
+getprop=/data/resourceIB/getprop
 box=/system/xbin/busybox
 
 # Loop to reset log values
