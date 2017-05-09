@@ -86,8 +86,6 @@ $setprop ro.ril.disable.power.collapse 0 /system/build.prop >> $LOG 2>> $LOG
 $setprop ro.vold.umsdirtyratio 20 /system/build.prop >> $LOG 2>> $LOG
 $setprop profiler.force_disable_err_rpt 1 /system/build.prop >> $LOG 2>> $LOG
 $setprop profiler.force_disable_ulog 1 /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.checkjni false /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.execution-mode int:jit /system/build.prop >> $LOG 2>> $LOG
 $setprop ro.ril.power_collapse 1 /system/build.prop >> $LOG 2>> $LOG
 $setprop ro.mot.eri.losalert.delay 1000 /system/build.prop >> $LOG 2>> $LOG
 # Purgable assets for fast reboot and battery save
@@ -129,27 +127,25 @@ $setprop ro.kernel.android.checkjni 0 /system/build.prop >> $LOG 2>> $LOG
 ( while [ "$(getprop sys.boot_completed)" != 1 ]; do
 $box sleep 20
 done
-#Optimal dex2oat threads for faster app installation
-$setprop ro.sys.fw.dex2oat_thread_count 4 /system/build.prop >> $LOG 2>> $LOG
-#Use 4 thread to improve dex2oat time
-$setprop dalvik.vm.dex2oat-thread_count 4 /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.dex2oat-threads 4 /system/build.prop >> $LOG 2>> $LOG
+$setprop dalvik.vm.image-dex2oat-filter balanced /system/build.prop >> $LOG 2>> $LOG
+$setprop dalvik.vm.dex2oat-filter speed /system/build.prop >> $LOG 2>> $LOG
+$setprop dalvik.vm.check-dex-sum false /system/build.prop >> $LOG 2>> $LOG
+$setprop dalvik.vm.checkjni false /system/build.prop >> $LOG 2>> $LOG
+$setprop dalvik.vm.execution-mode int:jit /system/build.prop >> $LOG 2>> $LOG
 
-# Davlik VM tweaks on boot
-$setprop jitdalvik.vm.checkjni false /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.dexopt-data-only 1 /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.heapstartsize 5m /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.verify-bytecode false /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.lockprof.threshold 250 /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.dexopt-flags m=v,o=y /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.jmiopts=forcecopy /system/build.prop >> $LOG 2>> $LOG
+if [ $API -ge 25 ]; then
+  $setprop pm.dexopt.bg-dexopt balanced /system/build.prop >> $LOG 2>> $LOG
+  if [ $ram -le 1024 ]; then
+    $setprop dalvik.vm.dex2oat-swap true /system/build.prop >> $LOG 2>> $LOG
+  else
+    $setprop dalvik.vm.dex2oat-swap false /system/build.prop >> $LOG 2>> $LOG
+  fi
+
 
 # uncertain if jit compiler will conflict with xposed framework
 # higher heapgrowthlimit and heapsize values can make high mem games run lagless
 # TODO: integrate this opyion into ui (not so sure if its on the fly)
 RAM=$((` $box awk '/MemTotal/{print $2}' /proc/meminfo` / 1024 ))
-
-setprop="/etc/Watson/setprop"
 if [ "$RAM" -lt "512" ]
 then
 THRESHOLD=300
@@ -161,15 +157,12 @@ fi
 
 HEAPMAXSIZE="$(( ($RAM * 244140 / 1000000) ))"
 VMHEAP="$(( $HEAPMAXSIZE / ( 1000/$THRESHOLD ) ))"
-$box $box echo $VMHEAP
+$box echo $VMHEAP
 
 #set vm parameters
-$box $box echo "$RAM of system RAM detected" >> $LOGFILE
-$box $box echo "==> Max heap: ${HEAPMAXSIZE}m" >> $LOGFILE
-$box $box echo "==> Min heap: ${VMHEAP}m1" >> $LOGFILE
-$setprop dalvik.vm.heapsize "${HEAPMAXSIZE}m" /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.heapgrowthlimit "${VMHEAP}m" /system/build.prop >> $LOG 2>> $LOG
-$setprop persist.sys.vm.heapsize "${VMHEAP}m" /system/build.prop >> $LOG 2>> $LOG
+$box echo "$RAM of system RAM detected" >> $LOGFILE
+$box echo "==> Max heap: ${HEAPMAXSIZE}m" >> $LOGFILE
+$box echo "==> Min heap: ${VMHEAP}m1" >> $LOGFILE
 
 # UX
 if [ "$RAM" -lt "512000" ]

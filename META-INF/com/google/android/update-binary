@@ -246,7 +246,10 @@ restore_files() {
 
 
 ver= #SET VARIABLE HERE BY READING TEXT IN /DATA /INTELLIBOOST
-A=$(cat /sys/class/power_supply/battery/capacity);
+B=$(cat /sys/class/power_supply/battery/capacity);
+RAM=$((` $box awk '/MemTotal/{print $2}' /proc/meminfo` / 1024 ))
+API=$(cat /system/build.prop 2>/dev/null | sed -n "s/^ro.build.version.sdk=//p" | head -n 1)
+
 # Preamble
 ui_print "###################################################"
 ui_print "#                                                 #"
@@ -270,9 +273,11 @@ ui_print "===> Basic system info:"
 ui_print "===> Android Version: `getprop ro.build.id`"
 ui_print "===> ROM: `getprop ro.build.display.id`"
 ui_print "===> Build: `getprop ro.build.version.release`"
-ui_print "===> Battery capacity: $A"
+ui_print "===> API: $API"
+ui_print "===> Battery capacity: $B"
+ui_print "===> RAM: $RAM"
 ui_print "===> Kernel: `uname -r`"
-
+sleep 3
 # Set progress to 0
 ui_print "===> From the top :)"
 set_progress 0.0
@@ -323,7 +328,7 @@ show_progress 0.2 2
 
 
 ui_print "====> Preparing installation"
-if [ -e "/system/etc/init.d/42intelliengine" ]
+if [ -e "/system/etc/intelliboost/42intelliengine" ]
 then
 action="update"
 else
@@ -391,8 +396,7 @@ ui_print "###################################################"
 ui_print "#                                                 #"
 ui_print "#============ Installation Complete! =============#"
 ui_print "#------ For mid-ranged to flagship devices -------#"
-ui_print "#---- For pointing out the flaws in my script ----#"
-ui_print "#---------- and giving valuable advice -----------#"
+ui_print "#------------------ Have fun! --------------------#"
 ui_print "#                                                 #"
 ui_print "###################################################"
 
