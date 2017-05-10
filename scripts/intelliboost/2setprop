@@ -7,6 +7,9 @@ LOG=/data/intelliboost/logs/setprop.log
 setprop=/data/resourceIB/setprop
 getprop=/data/resourceIB/getprop
 box=/system/xbin/busybox
+buildprop=/system/build.prop
+ram=$((` $box awk '/MemTotal/{print $2}' /proc/meminfo` / 1024 ))
+api=$(cat /system/build.prop 2>/dev/null | sed -n "s/^ro.build.version.sdk=//p" | head -n 1)
 
 # Loop to reset log values
 if [ -f \$LOG ]; then
@@ -45,12 +48,12 @@ $box echo "Fast dormancy is activated" >> $LOG
 
 # Android Logcat totally disabled
 # Much battery shall be saved
-#$setprop logcat.live disable /system/build.prop >> $LOG 2>> $LOG
-#$box rm -f /dev/log/main
-#$setprop debugtool.anrhistory 0 /system/build.prop >> $LOG 2>> $LOG
-#$setprop profiler.debugmonitor false /system/build.prop >> $LOG 2>> $LOG
-#$setprop profiler.launch false /system/build.prop >> $LOG 2>> $LOG
-#$setprop profiler.hung.dumpdobugreport false /system/build.prop >> $LOG 2>> $LOG
+$setprop logcat.live disable /system/build.prop >> $LOG 2>> $LOG
+$box rm -f /dev/log/main
+$setprop debugtool.anrhistory 0 /system/build.prop >> $LOG 2>> $LOG
+$setprop profiler.debugmonitor false /system/build.prop >> $LOG 2>> $LOG
+$setprop profiler.launch false /system/build.prop >> $LOG 2>> $LOG
+$setprop profiler.hung.dumpdobugreport false /system/build.prop >> $LOG 2>> $LOG
 $setprop persist.android.strictmode 0 /system/build.prop >> $LOG 2>> $LOG
 
 # Google DNS
@@ -124,17 +127,20 @@ $setprop ring.delay 0 /system/build.prop >> $LOG 2>> $LOG
 $setprop ro.config.nocheckin 1 /system/build.prop >> $LOG 2>> $LOG
 #kernel tweaks (Disable error checking)
 $setprop ro.kernel.android.checkjni 0 /system/build.prop >> $LOG 2>> $LOG
-( while [ "$(getprop sys.boot_completed)" != 1 ]; do
-$box sleep 20
-done
-$setprop dalvik.vm.image-dex2oat-filter balanced /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.dex2oat-filter speed /system/build.prop >> $LOG 2>> $LOG
+
+
+$setprop dalvik.vm.execution-mode int:jit /system/build.prop >> $LOG 2>> $LOG #use jit
 $setprop dalvik.vm.check-dex-sum false /system/build.prop >> $LOG 2>> $LOG
 $setprop dalvik.vm.checkjni false /system/build.prop >> $LOG 2>> $LOG
-$setprop dalvik.vm.execution-mode int:jit /system/build.prop >> $LOG 2>> $LOG
 
-if [ $API -ge 25 ]; then
+if [ $api -ge 25 ]; then
   $setprop pm.dexopt.bg-dexopt balanced /system/build.prop >> $LOG 2>> $LOG
+  $setprop dalvik.vm.image-dex2oat-filter balanced /system/build.prop >> $LOG 2>> $LOG
+else
+  $setprop pm.dexopt.bg-dexopt speed /system/build.prop >> $LOG 2>> $LOG
+  $setprop dalvik.vm.image-dex2oat-filter speed /system/build.prop >> $LOG 2>> $LOG
+fi
+
   if [ $ram -le 1024 ]; then
     $setprop dalvik.vm.dex2oat-swap true /system/build.prop >> $LOG 2>> $LOG
   else
@@ -158,11 +164,14 @@ fi
 HEAPMAXSIZE="$(( ($RAM * 244140 / 1000000) ))"
 VMHEAP="$(( $HEAPMAXSIZE / ( 1000/$THRESHOLD ) ))"
 $box echo $VMHEAP
-
 #set vm parameters
 $box echo "$RAM of system RAM detected" >> $LOGFILE
 $box echo "==> Max heap: ${HEAPMAXSIZE}m" >> $LOGFILE
 $box echo "==> Min heap: ${VMHEAP}m1" >> $LOGFILE
+
+( while [ "$(getprop sys.boot_completed)" != 1 ]; do
+$box sleep 20
+done
 
 # UX
 if [ "$RAM" -lt "512000" ]
