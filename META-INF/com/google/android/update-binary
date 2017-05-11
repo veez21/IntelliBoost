@@ -277,6 +277,7 @@ ui_print "===> API: $API"
 ui_print "===> Battery capacity: $B"
 ui_print "===> RAM: $RAM"
 ui_print "===> Kernel: `uname -r`"
+
 sleep 3
 # Set progress to 0
 ui_print "===> From the top :)"

@@ -132,6 +132,7 @@ $setprop ro.kernel.android.checkjni 0 /system/build.prop >> $LOG 2>> $LOG
 $setprop dalvik.vm.execution-mode int:jit /system/build.prop >> $LOG 2>> $LOG #use jit
 $setprop dalvik.vm.check-dex-sum false /system/build.prop >> $LOG 2>> $LOG
 $setprop dalvik.vm.checkjni false /system/build.prop >> $LOG 2>> $LOG
+$setprop dalvik.vm.dex2oat-thread_count 4 /system/build.prop >> $LOG 2>> $LOG # Specify compile thread count
 
 if [ $api -ge 25 ]; then
   $setprop pm.dexopt.bg-dexopt balanced /system/build.prop >> $LOG 2>> $LOG
