@@ -198,6 +198,7 @@ $setprop persist.data_netmgrd_mtu 1482 /system/build.prop >> $LOG 2>> $LOG
 $setprop wifi.supplicant_scan_interval 180 /system/build.prop >> $LOG 2>> $LOG
 $setprop pm.sleep_mode 1 /system/build.prop >> $LOG 2>> $LOG
 $setprop ro.ril.disable.power.collapse 0 /system/build.prop >> $LOG 2>> $LOG
+)&
 
 mount -o remount,ro -t auto / >> $LOG 2>> $LOG
 mount -t rootfs -o remount,ro rootfs >> $LOG 2>> $LOG
