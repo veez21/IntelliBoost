@@ -4,7 +4,7 @@
 # Set Variables
     LOG=/data/intelliboost/logs/loop.log
 	count=/data/intelliboost/loop
-	zap=`cat $count`
+	zap=`cat $count` || zap=0
 	box=/system/xbin/busybox
 
 # Loop to reset log values
@@ -41,10 +41,11 @@ mount -o remount,rw /cache >> $LOG 2>> $LOG
 		$box echo "Fourth Boot, automatic space optimisation starts at 5th boot" >> $LOG
 		exit		
 
-	elif [ $zap -eq  ]; then
+	elif [ $zap -eq  4 ]; then
 		$box echo "0" > $count
 	    $box echo "Fith Boot" >> $LOG
 		$box echo "This log is as good as dead, so fml" >> $LOG
+	fi
 
 # Force recursive deletion of logs in /data/intelliboost/logs/
 $box rm -rf /data/intelliboost/logs >> $LOG 2>> $LOG
