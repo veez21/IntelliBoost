@@ -1,6 +1,6 @@
 #!/system/bin/sh
 # Google play services wakelock fix
-# Kills aggressive wakelocks that drains a TON of battery
+# Kills aggressive wakelocks
 
 LOG=/data/intelliboost/logs/google.log
 box=/system/xbin/busybox
@@ -22,16 +22,16 @@ mount -o remount,rw /cache >> $LOG 2>> $LOG
 echo "$( date +"%m-%d-%Y %H:%M:%S" )  Google Play Services wakelock drain fix..." >> $LOG
 $box echo "" >> $LOG
 $box echo "Activating Google Play Services Drain fix..." >> $LOG
-su -c pm enable com.google.android.gms/.update.SystemUpdateActivity >> $LOG 2>> $LOG
-su -c pm enable com.google.android.gms/.update.SystemUpdateService >> $LOG 2>> $LOG
-su -c pm enable com.google.android.gms/.update.SystemUpdateService\$ActiveReceiver >> $LOG 2>> $LOG
-su -c pm enable com.google.android.gms/.update.SystemUpdateService\$Receiver >> $LOG 2>> $LOG
-su -c pm enable com.google.android.gms/.update.SystemUpdateService\$SecretCodeReceiver >> $LOG 2>> $LOG
-su -c pm enable com.google.android.gsf/.update.SystemUpdateActivity >> $LOG 2>> $LOG
-su -c pm enable com.google.android.gsf/.update.SystemUpdatePanoActivity >> $LOG 2>> $LOG
-su -c pm enable com.google.android.gsf/.update.SystemUpdateService >> $LOG 2>> $LOG
-su -c pm enable com.google.android.gsf/.update.SystemUpdateService\$Receiver >> $LOG 2>> $LOG
-su -c pm enable com.google.android.gsf/.update.SystemUpdateService\$SecretCodeReceiver >> $LOG 2>> $LOG
+su -c pm disable com.google.android.gms/.update.SystemUpdateActivity >> $LOG 2>> $LOG
+su -c pm disable com.google.android.gms/.update.SystemUpdateService >> $LOG 2>> $LOG
+su -c pm disable com.google.android.gms/.update.SystemUpdateService\$ActiveReceiver >> $LOG 2>> $LOG
+su -c pm disable com.google.android.gms/.update.SystemUpdateService\$Receiver >> $LOG 2>> $LOG
+su -c pm disable com.google.android.gms/.update.SystemUpdateService\$SecretCodeReceiver >> $LOG 2>> $LOG
+su -c pm disable com.google.android.gsf/.update.SystemUpdateActivity >> $LOG 2>> $LOG
+su -c pm disable com.google.android.gsf/.update.SystemUpdatePanoActivity >> $LOG 2>> $LOG
+su -c pm disable com.google.android.gsf/.update.SystemUpdateService >> $LOG 2>> $LOG
+su -c pm disable com.google.android.gsf/.update.SystemUpdateService\$Receiver >> $LOG 2>> $LOG
+su -c pm disable com.google.android.gsf/.update.SystemUpdateService\$SecretCodeReceiver >> $LOG 2>> $LOG
 
 $box sleep 20
 
