@@ -5,7 +5,7 @@
 LOG=/data/intelliboost/logs/zipalign.log
 ZIPALIGNDB=/data/zipalign.db
 count=/data/intelliboost/zipaligncnt
-zap=`cat $count`
+zap=`cat $count` || zap=0
 zipalign=/system/xbin/zipalign
 box=/system/xbin/busybox
 
@@ -42,6 +42,7 @@ fi;
     $box echo "0" > $count
     $box echo "Third Boot" >> $LOG
     $box echo "Now Zipaligning" >> $LOG
+  fi
 
 # Get d&T in enoch format
 $box echo "Starting Automatic ZipAlign $( date +"%m-%d-%Y %H:%M:%S" )" >> $LOG
