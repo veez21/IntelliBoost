@@ -280,16 +280,23 @@ ui_print "===> Kernel: `uname -r`"
 
 sleep 3
 # Set progress to 0
-ui_print "===> From the top :)"
 set_progress 0.0
+
 ui_print "===> Mounting partitions..."
 # find system block and mount
 ui_print " ";
 ui_print " - Mounting system partition"
-mount /system
+mount -o remount, rw /system
 
 ui_print " - Mounting data partition"
-mount /data
+sleep 1
+mount -o remount, rw /data
+
+ui_print " - Mounting sdcard partitions"
+sleep 1
+mount -o remount, rw /sdcard
+mount -o remount, rw /sdcard1
+
 sleep 1
 
 # Temorary stuff
@@ -300,27 +307,24 @@ mkdir /tmp/xbin
 mkdir /tmp/data
 mkdir /tmp/bus
 mkdir /tmp/system
-
-ui_print "===> Move shell scripts to temporary directory..."
-package_extract_dir "/scripts/init.d/" "/tmp/scripts/"
-package_extract_dir "/xbin" "/tmp/xbin/"
-package_extract_dir "/bus" "/tmp/bus/"
-package_extract_dir "/data" "/tmp/data/"
-package_extract_dir "/system" "/tmp/system/"
+mkdir /tmp/resource
 
 sleep 1
-ui_print "===> Checking build arch..."
+
+# TODO: Provide support for x86 if demand is high
+ui_print "===> Detecting arch..."
 
 if [ "$(getprop ro.product.cpu.abi2)" = "armeabi" ]
+then
+ARCH="arm"
+elif [ "$(getprop ro.product.cpu.abi2)" = "armeabi-v6l" ]
 then
 ARCH="arm"
 elif [ "$(getprop ro.product.cpu.abi)" = "arm64-v8a" ]
 then
 ARCH="arm64"
-elif [ "$(getprop ro.product.cpu.abi2)" = "armeabi-v6l" ]
-then
-ARCH="arm"
 fi
+
 sleep 1
 ui_print "=====> CPU Architecture: $ARCH"
 ui_print ""
@@ -328,19 +332,40 @@ ui_print ""
 show_progress 0.2 2
 
 
-ui_print "====> Preparing installation"
+ui_print "====> Detecting installation type"
 if [ -e "/system/etc/intelliboost/42intelliengine" ]
 then
 action="update"
+ui_print '====> i.action="update"'
 else
 action="install"
+ui_print '====> i.action="install"'
 fi
 
-if [ -e "/system/etc/init.d" ]; then
+# Check for init.d or su.d support
+if [ -e "/system/su.d" ]
+then
+  ui_print "===> su.d support detected :)"
+  sud=1
+ elif [ -e "/system/etc/init.d" ]
   ui_print "===> init.d support found! Skipping enabler...
+initd=1
 else
-  ui_print "===> init.d not supported, enabling...
+  ui_print "===> init.d && su.d not supported, enabling init.d...
   #Run init enabler script here
+
+fi
+
+#Run recheck sequence, merge into enabler
+if [ "$sud" = "0" ]
+then
+  if [-e "/system/etc/init.d" ]
+then
+  ui_print "===> init.d support detected :)"
+  initd=1
+else
+  ui_print "===> Failed to enable init.d :("
+  initd=0
 fi
 
 # Busybox loop here to Detected
@@ -348,7 +373,14 @@ fi
 #if #ADD CLEANING SCRIPT SPECIFIED DIRS HERE
 #cp /tmp/bus/$ARCH/* /system/xbin
 
+if [ "$ARCH" = "arm"]
+  then
+package_extract_dir "/bus/arm" "/tmp/bus/"
 
+elif [ "$ARCH" = "arm64"]
+  then
+package_extract_dir "/bus/arm64" "/tmp/bus/"
+fi
 
 # Goes 2 directions here using if else statement
 
@@ -377,10 +409,18 @@ mv /temp/xbin/ /system/xbin/
 mv /temp/data/ /data/
 mv /temp/system/ /system/
 
+ui_print "===> Moving logs and resources to /data"
+sleep 1
+mkdir /data/intelliboost/
+mkdir /data/logs
+mkdir /data/logfreescripts
+mkdir /data/intelliboost/resource && package_extract_dir "/data" "/data/intelliboost/"
+
 #Set perms for cron, merge their update bin here
 chmod -R 755 /system/etc/init.d/
 chmod -R 775 /system/xbin
 chmod 775 /system/hosts
+chmod 775 -R /data/resource/*
 chown root:shell /system/etc/init.d/
 chmod 755 /system/bin/sysinit
 chown root:shell /system/bin/sysinit

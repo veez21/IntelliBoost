@@ -16,4 +16,4 @@ else
 busybox sed -i "s/${1}=.*/${1}=${2}/g" $3
 #mv /sdcard/tmp/build.prop $3
 busybox chmod 644 $3
-fi;
+fi
