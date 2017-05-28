@@ -267,8 +267,6 @@ restore_files() {
 #  set perms (chmod775 && chmod 777)
 #  }
 #
-#
-#
 ##########################################################################################
 
 # Detect ARCH
@@ -295,7 +293,7 @@ romb=$(getprop ro.build.version.release /system/build.prop)
 ui_print "###################################################"
 ui_print "#                                                 #"
 ui_print "# ================ IntelliBoost ================= #"
-ui_print "# ---------------- Version: 1.0 ----------------- #"
+ui_print "# ----------------- Version: 1 ------------------ #"
 ui_print "# ================= By @ala_mo ================== #"
 ui_print "#                                                 #"
 ui_print "###################################################"
@@ -311,7 +309,7 @@ ui_print "###################################################"
 ui_print ""
 sleep 2
 ui_print "###################################################"
-ui_print "# ===> System info:                               #"
+ui_print "#================= System info ===================#"
 ui_print "# Android Version: $sweet                         #"
 ui_print "# ROM: $rom                                       #"
 ui_print "# Device codename: $codename                      #"
@@ -325,12 +323,37 @@ ui_print "###################################################"
 
 sleep 3
 
+
+
+# Modular installation
+# ONLY ACCEPTS BOOLEAN TRUE FALSE VALUES
+
+if [ -e "/sdcard/intelliboost.prop" ] #find modular properties
+then
+wipeinitd=$(getprop wipe.initd /sdcard/intelliboost.prop)
+ga=$(getprop enable.google.assistant)
+
+else
+  ui_print "===> No modular prefs file detected"
+  ui_print "===> Creating on in internal storage..."
+  sleep 1
+  touch /sdcard/intelliboost.prop
+
+
+  sleep 0.5
+
+  ui_print '===> You can go to "tinyurl.com/intelliboostprop"'
+  ui_print " To find out how to do modular installations"
+fi
+
+
 # Set progress to 0
 set_progress 0.0
 
 ui_print "===> Mounting partitions..."
 # find system block and mount
 ui_print " ";
+
 ui_print " - Mounting system partition"
 mount -o remount, rw /system
 
@@ -366,14 +389,20 @@ show_progress 0.2 2
 ui_print "====> Detecting installation type"
 if [ -e "/data/intelliboost/version" ]
 then
-currver=$(getprop build.version /data/intelliboost/version);
+currver=$(getprop build.version /system/intelliboostversion);
 action="update"
-ui_print '===> i.action="update"'
-ui_print "===> Currverion is $currver"
+ui_print '===> action="update"'
+ui_print "===> Current version is $currver"
 else
 action="install"
 ui_print "===> No previous installation of intelliboost was detected :p"
-ui_print '===> i.action="install"'
+ui_print '===> action="install"'
+fi
+
+if [ "$currver" = "$nowver"]
+  then
+  ui_print "===> You seem to be trying to reinstall v$currver"
+  ui_print "===> No worries, the dynamic installation will properly handle this"
 fi
 
 # Check for init.d or su.d support
@@ -437,6 +466,19 @@ fi
 
 #code here
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 elif [ "$action" = "install"]
  then
  ui_print "===> No traces of IntelliBoost"
@@ -463,6 +505,15 @@ mkdir /data/intelliboost/resource && package_extract_dir "/data" "/data/intellib
 ui_print "===> Moving resources to /sdcard"
 sleep 1
 mkdir /sdcard/intelliboost/logs && package_extract_dir "/logs" "/sdcard/intelliboost/logs"
+
+# RUN ONE TIME SCRIPTS HERE
+
+#backup.sh
+#assert.sh
+
+
+
+
 
 #Set perms for cron, merge their update bin here
 

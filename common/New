@@ -1,0 +1,28 @@
+# Modular installation
+# ONLY ACCEPTS BOOLEAN "TRUE" "FALSE" VALUES
+#  This prop file will be read by the installer on your next flash
+# If you don't understand anything jsut ask on the XDA thread
+# I will not be responsible if you try your luck on the options
+
+###############################################
+#Example:                                                                                                                                  #
+#enable.google.assistant=true                                                                                    #
+#This will tell the installer that you want to enable google assistant  #
+# You can only fill in true or false                                                                                #
+###############################################
+
+# PROPERTIES START
+
+#1 Google assistant enabler
+enable.google.assistant=
+
+#2 Wipe entire init.d
+wipe.initd=
+
+# More options in future
+
+
+
+
+
+# You can request for more modular install options on the thread or by pm(@ala_mo)
