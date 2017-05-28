@@ -270,13 +270,13 @@ restore_files() {
 ##########################################################################################
 
 # Detect ARCH
-if [ "$$(getprop ro.product.cpu.abi2)" = "armeabi" ]
+if [ "$$(getprop ro.product.cpu.abi2)" == "armeabi" ]
 then
 ARCH="arm"
-elif [ "$(getprop ro.product.cpu.abi2)" = "armeabi-v6l" ]
+elif [ "$(getprop ro.product.cpu.abi2)" == "armeabi-v6l" ]
 then
 ARCH="arm"
-elif [ "$(getprop ro.product.cpu.abi)" = "arm64-v8a" ]
+elif [ "$(getprop ro.product.cpu.abi)" == "arm64-v8a" ]
 then
 ARCH="arm64"
 fi
@@ -406,7 +406,7 @@ ui_print "===> No previous installation of intelliboost was detected :p"
 ui_print '===> Action is to install v$nowver'
 fi
 
-if [ "$currver" = "$nowver"]
+if [ "$currver" == "$nowver"]
   then
   ui_print "===> You seem to be trying to reinstall v$currver"
   ui_print "===> No worries, the dynamic installation will properly handle this"
@@ -427,7 +427,7 @@ else
 fi
 
 #Run recheck sequence, merge into enabler
-if [ "$sud" = "0" ]
+if [ "$sud" == "0" ]
 then
   if [-e "/system/etc/init.d" ]
 then
@@ -443,23 +443,23 @@ fi
 #if #ADD CLEANING SCRIPT SPECIFIED DIRS HERE
 #cp /tmp/bus/$ARCH/* /system/xbin
 
-if [ "$ARCH" = "arm"]
+if [ "$ARCH" == "arm"]
   then
 package_extract_dir "/bus/arm" "/tmp/bus/"
 
-elif [ "$ARCH" = "arm64"]
+elif [ "$ARCH" == "arm64"]
   then
 package_extract_dir "/bus/arm64" "/tmp/bus/"
 fi
 
 # Goes 2 directions here using if else statement
 
-if [ "$action" = "update"]
+if [ "$action" == "update"]
   then
   ui_print "===> Detected IntelliBoost $currver"
 
   # Call method
-if [ "$sud" = "1" ]
+if [ "$sud" == "1" ]
 then
    kek=$(ls /system/su.d);
    ui_print "$kek"
@@ -486,7 +486,7 @@ fi
 
 
 
-elif [ "$action" = "install"]
+elif [ "$action" == "install"]
  then
  ui_print "===> No traces of IntelliBoost"
  sleep 1
