@@ -38,7 +38,7 @@ is_substring() {
   esac;
 }
 # less_than_int <x> <y>
-less_than_int() { test $1 -lt $2 && echo 1 || echo 0; }
+less_than_int() { test $1  -lt $2 && echo 1 || echo 0; }
 # greater_than_int <x> <y>
 greater_than_int() { test $1 -gt $2 && echo 1 || echo 0; }
 
@@ -242,13 +242,54 @@ restore_files() {
 
 
 ##########################################################################################
-# NUGGETS AND FRIES
+#                                    UPDATE INDEX
+#
+#  - Define all system related variables
+#  - Mount all partions
+#  - Make tmp dirs (mkdir)
+#  - Detect installation type (update || install)
+#  
+#  if(action == update){
+#  Check for init.d && busybox support else enable it
+#  Replace core scripts to (init.d || su.d)[prefs is su.d]
+#  mv resources to /data
+#  mv scripts to /sdcard
+#  set perms (chmod775 && chmod 777)
+#  }
+#
+#
+#  if(action == install){
+#  init.d or su.d support && if(init.d=0)then enable by patching ramdisk
+#  install busybox using $arch (no x86 support)
+#  Install core scripts to (init.d || su.d)[prefs is su.d]
+#  mv resorces to /data
+#  mv scripts to /sdcard
+#  set perms (chmod775 && chmod 777)
+#  }
+#
+#
+#
+##########################################################################################
 
-
-ver= #SET VARIABLE HERE BY READING TEXT IN /DATA /INTELLIBOOST
-B=$(cat /sys/class/power_supply/battery/capacity);
-RAM=$((` $box awk '/MemTotal/{print $2}' /proc/meminfo` / 1024 ))
-API=$(cat /system/build.prop 2>/dev/null | sed -n "s/^ro.build.version.sdk=//p" | head -n 1)
+# Detect ARCH
+if [ "$$(getprop ro.product.cpu.abi2)" = "armeabi" ]
+then
+ARCH="arm"
+elif [ "$(getprop ro.product.cpu.abi2)" = "armeabi-v6l" ]
+then
+ARCH="arm"
+elif [ "$(getprop ro.product.cpu.abi)" = "arm64-v8a" ]
+then
+ARCH="arm64"
+fi
+nowver=1
+Batt=$(cat /sys/class/power_supply/battery/capacity);
+RAM=$((` $box awk '/MemTotal/{print $2}' /proc/meminfo` / 1024 ));
+API=$(cat /system/build.prop 2>/dev/null | sed -n "s/^ro.build.version.sdk=//p" | head -n 1);
+sweet=$(getprop ro.build.id /system/build.prop);
+codename=$(getprop ro.product.device /system.build.prop);
+rom=$(getprop ro.build.display.id /system/build.prop)
+romb=$(getprop ro.build.version.release /system/build.prop)
 
 # Preamble
 ui_print "###################################################"
@@ -267,18 +308,23 @@ ui_print "#------ For mid-ranged to flagship devices -------#"
 ui_print "#-- Not suitable for old devices with 1-2gb ram --#"
 ui_print "#                                                 #"
 ui_print "###################################################"
-sleep 1
 ui_print ""
-ui_print "===> Basic system info:"
-ui_print "===> Android Version: `getprop ro.build.id`"
-ui_print "===> ROM: `getprop ro.build.display.id`"
-ui_print "===> Build: `getprop ro.build.version.release`"
-ui_print "===> API: $API"
-ui_print "===> Battery capacity: $B"
-ui_print "===> RAM: $RAM"
-ui_print "===> Kernel: `uname -r`"
+sleep 2
+ui_print "###################################################"
+ui_print "# ===> System info:                               #"
+ui_print "# Android Version: $sweet                         #"
+ui_print "# ROM: $rom                                       #"
+ui_print "# Device codename: $codename                      #"
+ui_print "# Build: $romb                                    #"
+ui_print "# Architecture: $ARCH                             #"
+ui_print "# API: $API                                       #"
+ui_print "# Battery capacity: $Batt                         #"
+ui_print "# RAM: $RAM                                       #"
+ui_print "# Kernel: `uname -r`                              #"
+ui_print "###################################################"
 
 sleep 3
+
 # Set progress to 0
 set_progress 0.0
 
@@ -312,34 +358,22 @@ mkdir /tmp/resource
 sleep 1
 
 # TODO: Provide support for x86 if demand is high
-ui_print "===> Detecting arch..."
-
-if [ "$(getprop ro.product.cpu.abi2)" = "armeabi" ]
-then
-ARCH="arm"
-elif [ "$(getprop ro.product.cpu.abi2)" = "armeabi-v6l" ]
-then
-ARCH="arm"
-elif [ "$(getprop ro.product.cpu.abi)" = "arm64-v8a" ]
-then
-ARCH="arm64"
-fi
 
 sleep 1
-ui_print "=====> CPU Architecture: $ARCH"
-ui_print ""
 
 show_progress 0.2 2
 
-
 ui_print "====> Detecting installation type"
-if [ -e "/system/etc/intelliboost/42intelliengine" ]
+if [ -e "/data/intelliboost/version" ]
 then
+currver=$(getprop build.version /data/intelliboost/version);
 action="update"
-ui_print '====> i.action="update"'
+ui_print '===> i.action="update"'
+ui_print "===> Currverion is $currver"
 else
 action="install"
-ui_print '====> i.action="install"'
+ui_print "===> No previous installation of intelliboost was detected :p"
+ui_print '===> i.action="install"'
 fi
 
 # Check for init.d or su.d support
@@ -347,7 +381,7 @@ if [ -e "/system/su.d" ]
 then
   ui_print "===> su.d support detected :)"
   sud=1
- elif [ -e "/system/etc/init.d" ]
+ elif [ -e "/system/0etc/init.d" ]
   ui_print "===> init.d support found! Skipping enabler...
 initd=1
 else
@@ -386,9 +420,19 @@ fi
 
 if [ "$action" = "update"]
   then
-  ui_print "===> Detected a previous version of IntelliBoost"
+  ui_print "===> Detected IntelliBoost $currver"
+
+  # Call method
+if [ "$sud" = "1" ]
+then
+   kek=$(ls /system/su.d);
+   ui_print "$kek"
+else
+   kek=$(ls /system/etc/init.d);
+   ui_print "$kek"
+fi
   sleep 1
-  ui_print "===> Updating IntelliBoost from $ver to v1.0..."
+  ui_print "===> Updating IntelliBoost from $currver to $nowver..."
   sleep 1
 
 #code here
@@ -409,15 +453,19 @@ mv /temp/xbin/ /system/xbin/
 mv /temp/data/ /data/
 mv /temp/system/ /system/
 
-ui_print "===> Moving logs and resources to /data"
-sleep 1
+ui_print "===> Moving resources to /data"
+sleep 2
 mkdir /data/intelliboost/
 mkdir /data/logs
 mkdir /data/logfreescripts
 mkdir /data/intelliboost/resource && package_extract_dir "/data" "/data/intelliboost/"
 
+ui_print "===> Moving resources to /sdcard"
+sleep 1
+mkdir /sdcard/intelliboost/logs && package_extract_dir "/logs" "/sdcard/intelliboost/logs"
+
 #Set perms for cron, merge their update bin here
-chmod -R 755 /system/etc/init.d/
+
 chmod -R 775 /system/xbin
 chmod 775 /system/hosts
 chmod 775 -R /data/resource/*
