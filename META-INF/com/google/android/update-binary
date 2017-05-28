@@ -387,16 +387,23 @@ sleep 1
 show_progress 0.2 2
 
 ui_print "====> Detecting installation type"
-if [ -e "/data/intelliboost/version" ]
-then
-currver=$(getprop build.version /system/intelliboostversion);
+if [ -e "/system/init.d/42intelliengine" ]
+  then
+    if [ -e "/data/intelliboost/version" ]
+      then
+      currver=$(getprop build.version /data/intelliboost/version);
+      vpresence=1
+    fi
 action="update"
-ui_print '===> action="update"'
-ui_print "===> Current version is $currver"
+if["vpresence" == "1"]; then
+ui_print '===> Action is to update from v$currver to v$nowver'
+else
+  ui_print "Action is to update"
+fi
 else
 action="install"
 ui_print "===> No previous installation of intelliboost was detected :p"
-ui_print '===> action="install"'
+ui_print '===> Action is to install v$nowver'
 fi
 
 if [ "$currver" = "$nowver"]
