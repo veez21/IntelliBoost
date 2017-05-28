@@ -2,7 +2,7 @@
 Stretch your android's battery life and oil the gears in your Android! 
 This mod is full of shell scripts that can be flashed in recovery.
 
-- [XDA Thread](http://google.com)
+- [XDA Thread](https://forum.xda-developers.com/android/software/mod-intelliboost-stretch-battery-life-t3613437)
 
 - [G+ Page](https://plus.google.com/u/0/communities/103694585129460218696)
 
