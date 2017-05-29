@@ -333,17 +333,72 @@ then
 wipeinitd=$(getprop wipe.initd /sdcard/intelliboost.prop)
 ga=$(getprop enable.google.assistant)
 
+
+#execute correct actions from here
+
+
 else
   ui_print "===> No modular prefs file detected"
   ui_print "===> Creating on in internal storage..."
   sleep 1
   touch /sdcard/intelliboost.prop
 
+  echo "# Modular installation
+# ONLY ACCEPTS BOOLEAN 'TRUE' 'FALSE' VALUES
+# This prop file will be read by the installer on your next flash
+# If you don't understand anything just ask or go without modular installation
+# I will not be responsible if you try your luck on the options
+
+###############################################
+#Example:                                     #
+#enable.google.assistant=true                 #
+#This will tell the installer that you want to# 
+#enable google assistant                      #
+# You can only fill in true or false          #
+###############################################
+
+# PROPERTIES START
+
+INSTALLATION 
+
+# MAIN #
+
+# Description:
+install.core=
+
+# Description:
+maximal.space.save=
+
+# Description:
+set.prop
+
+#
+fstrim.on.boot
+
+# MISC #
+#1 Google assistant enabler
+enable.google.assistant=
+
+#2 Wipe entire init.d
+wipe.initd=
+
+#3 Disable debugging and logging
+disable.logdebug=
+
+# More options in future
+
+
+
+
+
+# You can request for more modular install options on the thread or by pm(@ala_mo)" >> /sdcard/intelliboost.prop
+
 
   sleep 0.5
 
   ui_print '===> You can go to "tinyurl.com/intelliboostprop"'
   ui_print " To find out how to do modular installations"
+  ui_print " The installation will resume, going with the optimal modules"
 fi
 
 
@@ -502,6 +557,10 @@ mv /temp/xbin/ /system/xbin/
 mv /temp/data/ /data/
 mv /temp/system/ /system/
 
+
+# READ MODULAR VALUES FROM HERE
+
+
 ui_print "===> Moving resources to /data"
 sleep 2
 mkdir /data/intelliboost/
@@ -516,7 +575,7 @@ mkdir /sdcard/intelliboost/logs && package_extract_dir "/logs" "/sdcard/intellib
 # RUN ONE TIME SCRIPTS HERE
 
 #backup.sh
-#assert.sh
+#assert.sh (detect snapdragon)
 
 
 

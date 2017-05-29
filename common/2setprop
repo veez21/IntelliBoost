@@ -1,0 +1,207 @@
+#!/system/bin/sh
+# Build.prop Tweaks (one time)
+# TODO: Fix buffersize values, one time so remove syscl and other commands that are not fixed and make this a .sh
+
+# setvar
+LOG=/data/intelliboost/logs/setprop.log
+setprop=/data/resourceIB/setprop
+getprop=/data/resourceIB/getprop
+box=/system/xbin/busybox
+buildprop=/system/build.prop
+ram=$((` $box awk '/MemTotal/{print $2}' /proc/meminfo` / 1024 ))
+api=$(cat /system/build.prop 2>/dev/null | sed -n "s/^ro.build.version.sdk=//p" | head -n 1)
+
+# Loop to reset log values
+if [ -f \$LOG ]; then
+$box rm -f \$LOG;
+$box touch \$LOG;
+else
+  $box touch \$LOG;
+fi;
+
+mount -o remount,rw -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,rw rootfs >> $LOG 2>> $LOG
+mount -o remount,rw -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG
+
+$box echo "$( date +"%m-%d-%Y %H:%M:%S" )  Applying build.prop tweaks..." >> $LOG
+$box echo "" >> $buildprop
+$box echo "build.prop tweaks by @ala_mo" >> $buildprop
+
+# Wireless Speed Tweaks
+$setprop net.tcp.buffersize.default 4096,87380,256960,4096,16384,256960 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.tcp.buffersize.wifi 4096,87380,256960,4096,16384,256960 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.tcp.buffersize.umts 4096,87380,256960,4096,16384,256960 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.tcp.buffersize.gprs 4096,87380,256960,4096,16384,256960 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.tcp.buffersize.edge 4096,87380,256960,4096,16384,256960 /system/build.prop >> $LOG 2>> $LOG
+
+# Fast Dormancy
+$box echo "" >> $LOG
+$box echo "Activating fast dormancy..." >> $LOG
+$setprop ro.fast.dormancy 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.fast.dormancy.rule 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop persist.radio.data_no_toggle 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop persist.cust.tel.eons 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.config.hw_fast_dormancy 1 /system/build.prop >> $LOG 2>> $LOG
+$box echo "Fast dormancy is activated" >> $LOG
+
+# Android Logcat totally disabled
+# Much battery shall be saved
+$setprop logcat.live disable /system/build.prop >> $LOG 2>> $LOG
+$box rm -f /dev/log/main
+$setprop debugtool.anrhistory 0 /system/build.prop >> $LOG 2>> $LOG
+$setprop profiler.debugmonitor false /system/build.prop >> $LOG 2>> $LOG
+$setprop profiler.launch false /system/build.prop >> $LOG 2>> $LOG
+$setprop profiler.hung.dumpdobugreport false /system/build.prop >> $LOG 2>> $LOG
+$setprop persist.android.strictmode 0 /system/build.prop >> $LOG 2>> $LOG
+
+# Google DNS
+# Security and stuff
+# No effect on battery
+# Google DNS
+$setprop net.dns1 8.8.8.8 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.dns2 8.8.4.4 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.rmnet0.dns1 8.8.8.8 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.rmnet0.dns2 8.8.4.4 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.ppp0.dns1 8.8.8.8 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.ppp0.dns2 8.8.4.4 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.wlan0.dns1 8.8.8.8 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.wlan0.dns2 8.8.4.4 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.eth0.dns1 8.8.8.8 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.eth0.dns2 8.8.4.4 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.gprs.dns1 8.8.8.8 /system/build.prop >> $LOG 2>> $LOG
+$setprop net.gprs.dns2 8.8.4.4 /system/build.prop >> $LOG 2>> $LOG
+
+#Battery Tweaks
+$setprop debug.sf.hw 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.power_collapse 0 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.disable.power.collapse 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop persist.sys.use_dithering 0 /system/build.prop >> $LOG 2>> $LOG
+$setprop wifi.supplicant_scan_interval 250 /system/build.prop >> $LOG 2>> $LOG
+$setprop power_supply.wakeup enable /system/build.prop >> $LOG 2>> $LOG
+$setprop power.saving.mode 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.config.hw_power_saving 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.config.hw_power_saving true /system/build.prop >> $LOG 2>> $LOG
+$setprop persist.radio.add_power_save 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop pm.sleep_mode 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.disable.power.collapse 0 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.vold.umsdirtyratio 20 /system/build.prop >> $LOG 2>> $LOG
+$setprop profiler.force_disable_err_rpt 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop profiler.force_disable_ulog 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.power_collapse 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.mot.eri.losalert.delay 1000 /system/build.prop >> $LOG 2>> $LOG
+# Purgable assets for fast reboot and battery save
+$setprop persist.sys.purgeable_assets 1 /system/build.prop >> $LOG 2>> $LOG
+# Slightly faster boot
+$setprop ro.config.hw_quickpoweron true
+# Net tweaks and RIL stuff
+# Support for IPV4 and IPV6
+$setprop persist.telephony.support.ipv6 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop persist.telephony.support.ipv4 1 /system/build.prop >> $LOG 2>> $LOG
+$box sysctl -w net.ipv4.conf.all.rp_filter 2 /system/build.prop >> $LOG 2>> $LOG
+$box sysctl -w net.ipv4.conf.default.rp_filter 2 /system/build.prop >> $LOG 2>> $LOG
+$box sysctl -w net.ipv4.tcp_max_syn_backlog 1024 /system/build.prop >> $LOG 2>> $LOG
+$box sysctl -w net.ipv4.tcp_synack_retries 2 /system/build.prop >> $LOG 2>> $LOG
+#RIL Tweaks
+$setprop ro.ril.hsxpa 3 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.gprsclass 12 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.hep 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.hsdpa.category 8 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.enable.3g.prefix 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.hsupa.category 6 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.enable.sdr 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.enable.gea3 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.enable.a52 0 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.enable.a53 1 /system/build.prop >> $LOG 2>> $LOG
+# FFFFFAST 3G
+$setprop ro.ril.hep 0 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.hsxpa 2 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.enable.dtm 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.htcmaskw1.bitmask 4294967295 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.htcmaskw1 14449 /system/build.prop >> $LOG 2>> $LOG
+# Telephony
+$setprop ro.telephony.call_ring.delay 0 /system/build.prop >> $LOG 2>> $LOG
+$setprop ring.delay 0 /system/build.prop >> $LOG 2>> $LOG
+# Disable Sending Usage Data
+$setprop ro.config.nocheckin 1 /system/build.prop >> $LOG 2>> $LOG
+#kernel tweaks (Disable error checking)
+$setprop ro.kernel.android.checkjni 0 /system/build.prop >> $LOG 2>> $LOG
+
+
+$setprop dalvik.vm.execution-mode int:jit /system/build.prop >> $LOG 2>> $LOG #use jit
+$setprop dalvik.vm.check-dex-sum false /system/build.prop >> $LOG 2>> $LOG
+$setprop dalvik.vm.checkjni false /system/build.prop >> $LOG 2>> $LOG
+$setprop dalvik.vm.dex2oat-thread_count 4 /system/build.prop >> $LOG 2>> $LOG # Specify compile thread count
+
+if [ $api -ge 25 ]; then
+  $setprop pm.dexopt.bg-dexopt balanced /system/build.prop >> $LOG 2>> $LOG
+  $setprop dalvik.vm.image-dex2oat-filter balanced /system/build.prop >> $LOG 2>> $LOG
+else
+  $setprop pm.dexopt.bg-dexopt speed /system/build.prop >> $LOG 2>> $LOG
+  $setprop dalvik.vm.image-dex2oat-filter speed /system/build.prop >> $LOG 2>> $LOG
+fi
+
+  if [ $ram -le 1024 ]; then
+    $setprop dalvik.vm.dex2oat-swap true /system/build.prop >> $LOG 2>> $LOG
+  else
+    $setprop dalvik.vm.dex2oat-swap false /system/build.prop >> $LOG 2>> $LOG
+  fi
+
+
+# uncertain if jit compiler will conflict with xposed framework
+# higher heapgrowthlimit and heapsize values can make high mem games run lagless
+# TODO: integrate this opyion into ui (not so sure if its on the fly)
+RAM=$((` $box awk '/MemTotal/{print $2}' /proc/meminfo` / 1024 ))
+if [ "$RAM" -lt "512" ]
+then
+THRESHOLD=300
+$setprop dalvik.vm.heaptargetutilization 0.9 /system/build.prop >> $LOG 2>> $LOG
+else
+THRESHOLD=250
+$setprop dalvik.vm.heaptargetutilization 0.75 /system/build.prop >> $LOG 2>> $LOG
+fi
+
+HEAPMAXSIZE="$(( ($RAM * 244140 / 1000000) ))"
+VMHEAP="$(( $HEAPMAXSIZE / ( 1000/$THRESHOLD ) ))"
+$box echo $VMHEAP
+#set vm parameters
+$box echo "$RAM of system RAM detected" >> $LOGFILE
+$box echo "==> Max heap: ${HEAPMAXSIZE}m" >> $LOGFILE
+$box echo "==> Min heap: ${VMHEAP}m1" >> $LOGFILE
+
+( while [ "$(getprop sys.boot_completed)" != 1 ]; do
+$box sleep 20
+done
+
+# UX
+if [ "$RAM" -lt "512000" ]
+then
+$setprop persist.sys.force_highendgfx true /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.config.low_ram true /system/build.prop >> $LOG 2>> $LOG
+fi
+
+$setprop touch.pressure.scale 0.3 /system/build.prop >> $LOG 2>> $LOG
+$setprop view.touch_slop 2 /system/build.prop >> $LOG 2>> $LOG
+$setprop view.scroll_friction 1.5 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.min_pointer_dur  8 /system/build.prop >> $LOG 2>> $LOG
+$setprop touch.size.calibration geometric /system/build.prop >> $LOG 2>> $LOG
+$setprop touch.size.scale 100 /system/build.prop >> $LOG 2>> $LOG
+$setprop touch.size.bias 70 /system/build.prop >> $LOG 2>> $LOG
+$setprop touch.pressure.calibration amplitude /system/build.prop >> $LOG 2>> $LOG
+$setprop view.minimum_fling_velocity 25 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.max.fling_velocity 12000 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.min.fling_velocity 8000 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.use_data_netmgrd true /system/build.prop >> $LOG 2>> $LOG
+$setprop persist.data_netmgrd_nint 8 /system/build.prop >> $LOG 2>> $LOG
+$setprop persist.data_netmgrd_mtu 1482 /system/build.prop >> $LOG 2>> $LOG
+$setprop wifi.supplicant_scan_interval 180 /system/build.prop >> $LOG 2>> $LOG
+$setprop pm.sleep_mode 1 /system/build.prop >> $LOG 2>> $LOG
+$setprop ro.ril.disable.power.collapse 0 /system/build.prop >> $LOG 2>> $LOG
+)&
+
+mount -o remount,ro -t auto / >> $LOG 2>> $LOG
+mount -t rootfs -o remount,ro rootfs >> $LOG 2>> $LOG
+mount -o remount,ro -t auto /system >> $LOG 2>> $LOG
+mount -o remount,rw /data >> $LOG 2>> $LOG
+mount -o remount,rw /cache >> $LOG 2>> $LOG
