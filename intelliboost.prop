@@ -27,6 +27,7 @@ maximal.space.save=
 # Description:
 set.prop
 
+disable.mod.logging
 #
 fstrim.on.boot
 
@@ -39,6 +40,16 @@ wipe.initd=
 
 #3 Disable debugging and logging
 disable.logdebug=
+
+# Install busybox directly to /system/xbin or any other dirs
+#where woulod you like to install sterricson's 1.26.2 busybox binary?
+#either key in "xbin", "bin", "sbin" or "idk" (i dont know)
+# Leave blank if you wanna install it in your /data partion(only can be used for intelliboost, ist not a system wide install)
+# x86 users be ad, you guys won't have busybox support from me. You can do it manually
+
+busybox.install.location=
+
+
 
 # More options in future
 

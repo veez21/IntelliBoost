@@ -2,11 +2,10 @@
 # Intelliboost update script
 # Written in bash
 
-#Warning! This script will automatically grant chmod 775 and shell access (read, write, executable) to all init.d scripts and xbin files
-# I didn't want to chmod 775 specifically because i'm lazy and it might collide with future vers
-# So MAKE SURE you remove those scripts that you do not want to run
 #TODO: draw out framework, and plot update bin from there
-#Reminder: All init.d scripts that came from previous mods must be deleted, if not there might be arguments
+#Reminder: All init.d scripts that came from previous mods must be deleted, if not there might be conflicts
+
+# TODO: Provide support for x86 if demand is high
 
 OUTFD=/proc/self/fd/$2;
 ZIPFILE="$3";
@@ -391,7 +390,7 @@ disable.logdebug=
 
 
 
-# You can request for more modular install options on the thread or by pm(@ala_mo)" >> /sdcard/intelliboost.prop
+# You can request for more modular install options on the thread or by pm (@ala_mo)" >> /sdcard/intelliboost.prop
 
 
   sleep 0.5
@@ -424,18 +423,14 @@ mount -o remount, rw /sdcard1
 sleep 1
 
 # Temorary stuff
-ui_print "===> Creating temporary directories..."
+ui_print "===> Creating installation paths..."
 show_progress 0.1 5
-mkdir /tmp/scripts
-mkdir /tmp/xbin
-mkdir /tmp/data
-mkdir /tmp/bus
-mkdir /tmp/system
-mkdir /tmp/resource
 
-sleep 1
+mkdir /ibtemp # Main dir
+mkdir /ibtemp/bus #(M) extract to "xbin", "bin", "sbin" or "/data/intelliboost"
+mkdir /ibtemp/common # temp extract to be run for o t ops
+mkdir /ibtemp/logs #(M) extract to either /sdcard or /sdcard1
 
-# TODO: Provide support for x86 if demand is high
 
 sleep 1
 
@@ -472,17 +467,17 @@ if [ -e "/system/su.d" ]
 then
   ui_print "===> su.d support detected :)"
   sud=1
- elif [ -e "/system/0etc/init.d" ]
-  ui_print "===> init.d support found! Skipping enabler...
+ elif [ -e "/system/etc/init.d" ]
+  ui_print "===> init.d support found! Skipping enabler..."
 initd=1
 else
-  ui_print "===> init.d && su.d not supported, enabling init.d...
+  ui_print "===> init.d && su.d not supported, enabling init.d..."
   #Run init enabler script here
 
 fi
 
 #Run recheck sequence, merge into enabler
-if [ "$sud" == "0" ]
+if [ "$sud" == "0" && "initd" == "0"]
 then
   if [-e "/system/etc/init.d" ]
 then
@@ -491,20 +486,6 @@ then
 else
   ui_print "===> Failed to enable init.d :("
   initd=0
-fi
-
-# Busybox loop here to Detected
-# if detected rmb to moce the files in bus to /system/xbin and  set_perm_recursive
-#if #ADD CLEANING SCRIPT SPECIFIED DIRS HERE
-#cp /tmp/bus/$ARCH/* /system/xbin
-
-if [ "$ARCH" == "arm"]
-  then
-package_extract_dir "/bus/arm" "/tmp/bus/"
-
-elif [ "$ARCH" == "arm64"]
-  then
-package_extract_dir "/bus/arm64" "/tmp/bus/"
 fi
 
 # Goes 2 directions here using if else statement
@@ -552,10 +533,19 @@ show_progress 0.9 4
 ui_print "====> Installing core scripts"
 
 sleep 1
-mv /temp/scripts/ /system/etc/init.d/
-mv /temp/xbin/ /system/xbin/
-mv /temp/data/ /data/
-mv /temp/system/ /system/
+
+
+
+
+
+
+#code here
+
+
+
+
+
+
 
 
 # READ MODULAR VALUES FROM HERE
@@ -572,17 +562,44 @@ ui_print "===> Moving resources to /sdcard"
 sleep 1
 mkdir /sdcard/intelliboost/logs && package_extract_dir "/logs" "/sdcard/intelliboost/logs"
 
+
+# Busybox loop here to Detected
+# if detected rmb to moce the files in bus to /system/xbin and  set_perm_recursive
+#if #ADD CLEANING SCRIPT SPECIFIED DIRS HERE
+#cp /tmp/bus/$ARCH/* /system/xbin
+
+if [ -e "/system/xbin/busybox" ]; then
+echo "You have busybox installed :)"
+else
+	echo "You do not have busybox installed, this mod requires and will help you install it"
+if [ "$ARCH" == "arm"]
+  then
+package_extract_dir "/bus/arm/busybox" "/data/intelliboost"
+
+elif [ "$ARCH" == "arm64"]
+  then
+package_extract_dir "/bus/arm64" "/tmp/bus/"
+
+# x86 loop
+fi
+fi
+sleep 1
+echo "Setting busybox perms..."
+sleep 2
+set_perm_recursive 0 0 0755 0755 /data/intelliboost/busybox
+
 # RUN ONE TIME SCRIPTS HERE
+# Located in /common
 
 #backup.sh
 #assert.sh (detect snapdragon)
 
-
+chmod -R 775 /ibtemp/common # Grant the scripts perm
 
 
 
 #Set perms for cron, merge their update bin here
-
+# Chmod775 the scripts specifically
 chmod -R 775 /system/xbin
 chmod 775 /system/hosts
 chmod 775 -R /data/resource/*
@@ -590,12 +607,25 @@ chown root:shell /system/etc/init.d/
 chmod 755 /system/bin/sysinit
 chown root:shell /system/bin/sysinit
 
-set_perm_recursive 0 0 0755 0755 /system/etc/init.d
-set_perm_recursive 0 0 0755 0755 /system/xbin
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/6remount
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/44zipalign
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/32lmk
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/14sqlite
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/92cleaner
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/69renice
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/42intelliengine
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/2setprop
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/11lightseeder
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/91google
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/46zram
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/1loop
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/08sdcard
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/3fstrim
+
 sleep 2
 
 ui_print "====> Cleaning up temp dirs"
-rm -rf /tmp
+rm -rf /ibtemp
 sleep 1
 
 ui_print "###################################################"
