@@ -342,61 +342,13 @@ else
   sleep 1
   touch /sdcard/intelliboost.prop
 
-  echo "# Modular installation
-# ONLY ACCEPTS BOOLEAN 'TRUE' 'FALSE' VALUES
-# This prop file will be read by the installer on your next flash
-# If you don't understand anything just ask or go without modular installation
-# I will not be responsible if you try your luck on the options
-
-###############################################
-#Example:                                     #
-#enable.google.assistant=true                 #
-#This will tell the installer that you want to# 
-#enable google assistant                      #
-# You can only fill in true or false          #
-###############################################
-
-# PROPERTIES START
-
-INSTALLATION 
-
-# MAIN #
-
-# Description:
-install.core=
-
-# Description:
-maximal.space.save=
-
-# Description:
-set.prop
-
-#
-fstrim.on.boot
-
-# MISC #
-#1 Google assistant enabler
-enable.google.assistant=
-
-#2 Wipe entire init.d
-wipe.initd=
-
-#3 Disable debugging and logging
-disable.logdebug=
-
-# More options in future
-
-
-
-
-
-# You can request for more modular install options on the thread or by pm (@ala_mo)" >> /sdcard/intelliboost.prop
+  echo "                                   " >> /sdcard/intelliboost.prop
 
 
   sleep 0.5
 
   ui_print '===> You can go to "tinyurl.com/intelliboostprop"'
-  ui_print " To find out how to do modular installations"
+  ui_print " To find out how to do modular installations (video)"
   ui_print " The installation will resume, going with the optimal modules"
 fi
 
@@ -423,15 +375,29 @@ mount -o remount, rw /sdcard1
 sleep 1
 
 # Temorary stuff
+# Named ibtemp to prevent conflicts with any previous stuff
 ui_print "===> Creating installation paths..."
+mkdir /data/intelliboost
 show_progress 0.1 5
 
 mkdir /ibtemp # Main dir
 mkdir /ibtemp/bus #(M) extract to "xbin", "bin", "sbin" or "/data/intelliboost"
+mkdir /ibtemp/data #Includes resources, universalversion and logfreescripts
 mkdir /ibtemp/common # temp extract to be run for o t ops
 mkdir /ibtemp/logs #(M) extract to either /sdcard or /sdcard1
+mkdir /ibtemp/kernel #kernel tools for init.d and patching ramdisk
+mkdir /ibtemp/scripts #Core
+mkdir /ibtemp/system #Snappy assert display and adblock host file
 
+#subdirs
+mkdir /data/intelliboost/logs
+mkdir /data/intelliboost/logfreescripts
 
+# Temorary stuff
+ui_print "===> Moving installation files to /ibtemp..."
+show_progress 0.1 5
+
+package_extract_dir "bus"
 sleep 1
 
 show_progress 0.2 2
@@ -553,9 +519,6 @@ sleep 1
 
 ui_print "===> Moving resources to /data"
 sleep 2
-mkdir /data/intelliboost/
-mkdir /data/logs
-mkdir /data/logfreescripts
 mkdir /data/intelliboost/resource && package_extract_dir "/data" "/data/intelliboost/"
 
 ui_print "===> Moving resources to /sdcard"
@@ -566,19 +529,12 @@ mkdir /sdcard/intelliboost/logs && package_extract_dir "/logs" "/sdcard/intellib
 # Busybox loop here to Detected
 # if detected rmb to moce the files in bus to /system/xbin and  set_perm_recursive
 #if #ADD CLEANING SCRIPT SPECIFIED DIRS HERE
-#cp /tmp/bus/$ARCH/* /system/xbin
 
-if [ -e "/system/xbin/busybox" ]; then
+if [ -e "/system/xbin/busybox" || -e "/system/bin/busybox" ]; then
 echo "You have busybox installed :)"
 else
 	echo "You do not have busybox installed, this mod requires and will help you install it"
-if [ "$ARCH" == "arm"]
-  then
-package_extract_dir "/bus/arm/busybox" "/data/intelliboost"
-
-elif [ "$ARCH" == "arm64"]
-  then
-package_extract_dir "/bus/arm64" "/tmp/bus/"
+cp /tmp/bus/$ARCH/busybox /system/xbin
 
 # x86 loop
 fi
@@ -602,7 +558,7 @@ chmod -R 775 /ibtemp/common # Grant the scripts perm
 # Chmod775 the scripts specifically
 chmod -R 775 /system/xbin
 chmod 775 /system/hosts
-chmod 775 -R /data/resource/*
+chmod 775 -R /data/intelliboost/resource/*
 chown root:shell /system/etc/init.d/
 chmod 755 /system/bin/sysinit
 chown root:shell /system/bin/sysinit
@@ -631,8 +587,8 @@ sleep 1
 ui_print "###################################################"
 ui_print "#                                                 #"
 ui_print "#============ Installation Complete! =============#"
-ui_print "#------ For mid-ranged to flagship devices -------#"
-ui_print "#------------------ Have fun! --------------------#"
+ui_print "#-- ---- By alamo, sonickles9 and veez21 ---------#"
+ui_print "#----------- Have a good day ahead :p ------------#"
 ui_print "#                                                 #"
 ui_print "###################################################"
 

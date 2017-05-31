@@ -41,6 +41,13 @@ wipe.initd=
 #3 Disable debugging and logging
 disable.logdebug=
 
+#4. Blocking customisation
+block.porn.sites=
+block.fakenews.sites=
+block.gambling.sites=
+block.spotify.ads=
+block.all.ads=
+
 # Install busybox directly to /system/xbin or any other dirs
 #where woulod you like to install sterricson's 1.26.2 busybox binary?
 #either key in "xbin", "bin", "sbin" or "idk" (i dont know)
