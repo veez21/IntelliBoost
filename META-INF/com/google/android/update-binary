@@ -184,8 +184,9 @@ restore_con() {
 # concat(expr[, expr, ...]) {} is unneeded since string operations can be done directly
 # stdout(expr[, expr, ...]) {} is unneeded since all output goes to stdout by default
 
-# file_getprop <file> <property>
-file_getprop() { grep "^$2" "$1" | cut -d= -f2; }
+# file_getprop <property> <file>
+file_getprop() { grep "^$1" "$2" | cut -d= -f2; }
+
 # getprop <property>
 getprop() { test -e /sbin/getprop && /sbin/getprop $1 || grep "^$1" /default.prop; }
 
@@ -269,7 +270,7 @@ restore_files() {
 ##########################################################################################
 
 # Detect ARCH
-if [ "$$(getprop ro.product.cpu.abi2)" == "armeabi" ]
+if [ "$(getprop ro.product.cpu.abi2)" == "armeabi" ]
 then
 ARCH="arm"
 elif [ "$(getprop ro.product.cpu.abi2)" == "armeabi-v6l" ]
@@ -283,10 +284,10 @@ nowver=1
 Batt=$(cat /sys/class/power_supply/battery/capacity);
 RAM=$((` $box awk '/MemTotal/{print $2}' /proc/meminfo` / 1024 ));
 API=$(cat /system/build.prop 2>/dev/null | sed -n "s/^ro.build.version.sdk=//p" | head -n 1);
-sweet=$(getprop ro.build.id /system/build.prop);
-codename=$(getprop ro.product.device /system.build.prop);
-rom=$(getprop ro.build.display.id /system/build.prop)
-romb=$(getprop ro.build.version.release /system/build.prop)
+sweet=$(file_getprop ro.build.id /system/build.prop);
+codename=$(file_getprop ro.product.device /system.build.prop);
+rom=$(file_getprop ro.build.display.id /system/build.prop)
+romb=$(file_getprop ro.build.version.release /system/build.prop)
 
 # Preamble
 ui_print "###################################################"
@@ -329,8 +330,8 @@ sleep 3
 
 if [ -e "/sdcard/intelliboost.prop" ] #find modular properties
 then
-wipeinitd=$(getprop wipe.initd /sdcard/intelliboost.prop)
-ga=$(getprop enable.google.assistant)
+wipeinitd=$(file_getprop wipe.initd /sdcard/intelliboost.prop)
+ga=$(file_getprop enable.google.assistant)
 
 
 #execute correct actions from here
@@ -407,11 +408,11 @@ if [ -e "/system/init.d/42intelliengine" ]
   then
     if [ -e "/data/intelliboost/version" ]
       then
-      currver=$(getprop build.version /data/intelliboost/version);
+      currver=$(file_getprop build.version /data/intelliboost/version);
       vpresence=1
     fi
 action="update"
-if["vpresence" == "1"]; then
+if ["vpresence" == "1"]; then
 ui_print '===> Action is to update from v$currver to v$nowver'
 else
   ui_print "Action is to update"
@@ -433,7 +434,9 @@ if [ -e "/system/su.d" ]
 then
   ui_print "===> su.d support detected :)"
   sud=1
+
  elif [ -e "/system/etc/init.d" ]
+
   ui_print "===> init.d support found! Skipping enabler..."
 initd=1
 else
